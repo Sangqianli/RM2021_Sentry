@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<JScopeProject>
+    <FileVersion major="1" minor="1" />
+    <Project>
+        <Configuration>
+            <JLink>
+                <Options Connection="1" IsRTTSession="0" IsRTTWithTimeStamp="1" SamplingPeriod="100" SerialNo="0" JTAG_IRPre="-1" JTAG_DRPre="-1" IP="" TargetDevice="Cortex-M4" TargetInterface="SWD" InterfaceSpeed="4000" />
+            </JLink>
+            <ScriptFile Name="G:\RobotPiolits\第三周\云台\Project\Objects\云台pitch.jscope\unspecified" />
+            <ElfFile Name="G:\RobotPiolits\第三周\云台\Project\Objects\project.axf" />
+            <DataFile Name="" />
+            <RawFile Name="" />
+            <Scope>
+                <Options TimeResolutionUs="1000000" />
+            </Scope>
+        </Configuration>
+        <Windows>
+            <Graph Show="1" />
+            <Watch Show="1" />
+        </Windows>
+        <SelectedSymbols>
+            <Symbol>
+                <Options Name="target" Address="0x20000148" Type="float" TypeID="1" Size="4" GraphColorRed="255" GraphColorGreen="215" GraphColorBlue="0" YMinSampled="-832" YMaxSampled="1834" YAvgSampled="245" Offset="4" ShowInGraph="1" ACCoupling="1" YOffset="220" IsAutoConfig="0" YResolution="5000" MaxValue="-2147483648" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="measure" Address="0x20000158" Type="float" TypeID="1" Size="4" GraphColorRed="0" GraphColorGreen="255" GraphColorBlue="0" YMinSampled="-1244" YMaxSampled="2137" YAvgSampled="240" Offset="8" ShowInGraph="1" ACCoupling="0" YOffset="210" IsAutoConfig="0" YResolution="5000" MaxValue="-2147483648" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+        </SelectedSymbols>
+    </Project>
+</JScopeProject>

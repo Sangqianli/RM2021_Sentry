@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<JScopeProject>
+    <FileVersion major="1" minor="1" />
+    <Project>
+        <Configuration>
+            <JLink>
+                <Options Connection="1" IsRTTSession="0" IsRTTWithTimeStamp="1" SamplingPeriod="100" SerialNo="0" JTAG_IRPre="-1" JTAG_DRPre="-1" IP="" TargetDevice="Cortex-M4" TargetInterface="SWD" InterfaceSpeed="4000" />
+            </JLink>
+            <ElfFile Name="G:\RobotPiolits\µÚ¶þÖÜ\Ò£¿Ø\Project\Objects\project.axf" />
+            <DataFile Name="" />
+            <RawFile Name="" />
+            <Scope>
+                <Options TimeResolutionUs="2000000" />
+            </Scope>
+            <Trigger>
+                <Options Level="0.000000" Symbol="J_scope[0]" On="0" Auto="0" Rise="1" Fall="1" />
+            </Trigger>
+        </Configuration>
+        <Windows>
+            <Graph Show="1" />
+            <Watch Show="1" />
+        </Windows>
+        <SelectedSymbols>
+            <Symbol>
+                <Options Name="J_scope[0]" Address="0x20000088" Type="float" TypeID="1" Size="4" GraphColorRed="160" GraphColorGreen="32" GraphColorBlue="240" YMinSampled="-3257" YMaxSampled="4237" YAvgSampled="-794" Offset="4" ShowInGraph="1" ACCoupling="0" YOffset="280" IsAutoConfig="1" YResolution="5000" MaxValue="10000" File="..\APP\system.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="J_scope[1]" Address="0x20000088" Type="float" TypeID="1" Size="4" GraphColorRed="255" GraphColorGreen="215" GraphColorBlue="0" YMinSampled="-3257" YMaxSampled="4237" YAvgSampled="-794" Offset="8" ShowInGraph="1" ACCoupling="0" YOffset="240" IsAutoConfig="0" YResolution="5000" MaxValue="4700" File="..\APP\system.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="J_scope[2]" Address="0x2000008C" Type="float" TypeID="1" Size="4" GraphColorRed="0" GraphColorGreen="255" GraphColorBlue="0" YMinSampled="-3084" YMaxSampled="3047" YAvgSampled="-792" Offset="12" ShowInGraph="1" ACCoupling="0" YOffset="200" IsAutoConfig="1" YResolution="5000" MaxValue="10000" File="..\APP\system.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="J_scope[3]" Address="0x20000094" Type="float" TypeID="1" Size="4" GraphColorRed="102" GraphColorGreen="102" GraphColorBlue="178" YMinSampled="-3220" YMaxSampled="4242" YAvgSampled="-795" Offset="16" ShowInGraph="1" ACCoupling="0" YOffset="160" IsAutoConfig="1" YResolution="5000" MaxValue="10000" File="..\APP\system.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+        </SelectedSymbols>
+    </Project>
+</JScopeProject>

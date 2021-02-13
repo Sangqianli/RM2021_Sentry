@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<JScopeProject>
+    <FileVersion major="1" minor="1" />
+    <Project>
+        <Configuration>
+            <JLink>
+                <Options Connection="1" IsRTTSession="0" IsRTTWithTimeStamp="1" SamplingPeriod="100" SerialNo="0" JTAG_IRPre="-1" JTAG_DRPre="-1" IP="localhost" TargetDevice="Cortex-M4" TargetInterface="SWD" InterfaceSpeed="4000" />
+            </JLink>
+            <ScriptFile Name="unspecified" />
+            <ElfFile Name="G:\RobotPiolits\µÚÁùÆß°ËÖÜ\ÉÚ±ø»ù´¡\Project\Objects\project.axf" />
+            <DataFile Name="" />
+            <RawFile Name="" />
+            <Scope>
+                <Options TimeResolutionUs="1000000" />
+            </Scope>
+        </Configuration>
+        <Windows>
+            <Graph Show="1" />
+            <Watch Show="1" />
+        </Windows>
+        <SelectedSymbols>
+            <Symbol>
+                <Options Name="target" Address="0x200001D4" Type="float" TypeID="1" Size="4" GraphColorRed="255" GraphColorGreen="215" GraphColorBlue="0" YMinSampled="-2147483648" YMaxSampled="25984" YAvgSampled="-2147483648" Offset="4" ShowInGraph="1" ACCoupling="0" YOffset="200" IsAutoConfig="0" YResolution="1000" MaxValue="2" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="measure" Address="0x200001E4" Type="float" TypeID="1" Size="4" GraphColorRed="0" GraphColorGreen="255" GraphColorBlue="0" YMinSampled="-2147483648" YMaxSampled="26048" YAvgSampled="-2147483648" Offset="8" ShowInGraph="1" ACCoupling="0" YOffset="200" IsAutoConfig="0" YResolution="1000" MaxValue="20" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="target" Address="0x20000268" Type="float" TypeID="1" Size="4" GraphColorRed="102" GraphColorGreen="102" GraphColorBlue="178" YMinSampled="-2147483648" YMaxSampled="26088" YAvgSampled="-2147483648" Offset="12" ShowInGraph="0" ACCoupling="0" YOffset="200" IsAutoConfig="0" YResolution="1000" MaxValue="20000" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="measure" Address="0x20000278" Type="float" TypeID="1" Size="4" GraphColorRed="160" GraphColorGreen="32" GraphColorBlue="240" YMinSampled="-2147483648" YMaxSampled="26096" YAvgSampled="-2147483648" Offset="16" ShowInGraph="0" ACCoupling="0" YOffset="200" IsAutoConfig="0" YResolution="1000" MaxValue="10000" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="pout" Address="0x20000288" Type="float" TypeID="1" Size="4" GraphColorRed="255" GraphColorGreen="0" GraphColorBlue="0" YMinSampled="-2147483648" YMaxSampled="58896" YAvgSampled="-2147483648" Offset="20" ShowInGraph="0" ACCoupling="0" YOffset="200" IsAutoConfig="0" YResolution="1000" MaxValue="2" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="iout" Address="0x2000028C" Type="float" TypeID="1" Size="4" GraphColorRed="0" GraphColorGreen="191" GraphColorBlue="255" YMinSampled="-2147483648" YMaxSampled="27939" YAvgSampled="-2147483648" Offset="24" ShowInGraph="0" ACCoupling="0" YOffset="200" IsAutoConfig="0" YResolution="1000" MaxValue="2" File="..\APP\gimbal.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+        </SelectedSymbols>
+    </Project>
+</JScopeProject>
