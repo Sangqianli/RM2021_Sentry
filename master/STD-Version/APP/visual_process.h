@@ -20,10 +20,8 @@ typedef struct
 
 typedef struct
 {
-
     uint16_t nowLength;
     uint16_t queueLength;
-
     float queueTotal;
     //长度
     float queue[100];
@@ -33,7 +31,6 @@ typedef struct
     float Diff;//差分值
 
     uint8_t full_flag;
-
 } QueueObj;
 //队列对象
 void Vision_task(void);

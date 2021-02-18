@@ -6,28 +6,21 @@
 #include "stdint.h"
 typedef struct _PID_TypeDef
 {
-
-
-    float target;							//目标值
-
+    float target;
     float kp;
     float ki;
     float kd;
-
-    float   measure;					//测量值
-    float   err;							//误差
-    float   last_err;      		//上次误差
-    float   previous_err;  //上上次误差
-
+    float measure;
+    float err;
+    float last_err; 
+    float previous_err;  
     float pout;
     float iout;
     float dout;
-
-    float output;						//本次输出
-    float last_output;			//上次输出
-
-    float MaxOutput;				//输出限幅
-    float IntegralLimit;		//积分限幅
+    float output;						
+    float last_output;		
+    float MaxOutput;			
+    float IntegralLimit;		
 } PID_TypeDef;
 
 typedef struct

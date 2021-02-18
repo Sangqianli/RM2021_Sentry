@@ -253,7 +253,6 @@ void Clear_Queue(QueueObj* queue)
     queue->aver_num=0;
     queue->Diff=0;
     queue->full_flag=0;
-
 }
 /**
 * @brief 获取目标的速度
@@ -401,7 +400,6 @@ float Get_Distance_Tendency(uint8_t queue_len,float dis)
 */
 float Get_Diff(uint8_t queue_len, QueueObj *Data,float add_data)
 {
-
     if(queue_len>=Data->queueLength)
         queue_len=Data->queueLength;
     //防止溢出
