@@ -24,6 +24,7 @@ dev_list_t dev_list = {
 	.motor[DIAL] = &motor[DIAL],
 	.motor[GIMBAL_PITCH] = &motor[GIMBAL_PITCH],
 	.motor[GIMBAL_YAW] = &motor[GIMBAL_YAW],
+	.vision_sen = &vision_sensor,
 };
 
 /* Private functions ---------------------------------------------------------*/
@@ -37,4 +38,5 @@ void DEV_Init(void)
 	dev_list.motor[DIAL]->init(dev_list.motor[DIAL]);
 	dev_list.motor[GIMBAL_PITCH]->init(dev_list.motor[GIMBAL_PITCH]);
 	dev_list.motor[GIMBAL_YAW]->init(dev_list.motor[GIMBAL_YAW]);
+	dev_list.vision_sen->init(dev_list.vision_sen);
 }

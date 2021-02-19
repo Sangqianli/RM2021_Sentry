@@ -94,7 +94,7 @@ static void path_check(path_t *path)
 
 static void path_heart_beat(path_t *path)
 {
-	
+	path->work_state= DEV_ONLINE;
 }
 /* Exported functions --------------------------------------------------------*/
 

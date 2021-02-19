@@ -9,7 +9,7 @@
 //长度根据协议定义
 #define		VISION_LEN_HEADER		3			//帧头长
 #define 	VISION_LEN_DATA 		18    //数据段长度，可自定义
-#define   VISION_LEN_TAIL			2			//频尾CRC16
+#define     VISION_LEN_TAIL			2			//频尾CRC16
 #define		VISION_LEN_PACKED		23		//数据包长度，可自定义
 
 #define    VISION_OFF           (0x00)
@@ -44,7 +44,6 @@ typedef __packed struct
 	uint8_t 	SOF;			//帧头起始位,0xA5
 	uint8_t 	CmdID;		//指令
 	uint8_t 	CRC8;			//帧头CRC校验,保证发送的指令是正确的
-	
 	/*数据*/
 	float pitch_angle;
 	float yaw_angle;
@@ -55,12 +54,10 @@ typedef __packed struct
 	uint8_t identify_too_close;	// 目标距离过近	单位：0/1
 	uint8_t anti_gyro;	// 是否识别到小陀螺	单位：0/1
 	uint8_t	anti_gyro_change_armor;	// 是否在反陀螺状态下切换装甲板	单位：0/1
-	
 	/*尾*/
 	uint16_t CRC16;
 	u8 flag;
 }extVisionRecvData_t;
-
 /*****************视觉发送包格式********************/
 typedef __packed struct
 {
@@ -70,10 +67,8 @@ typedef __packed struct
 	uint8_t		 base_far_mode;     //远程吊射基地模式
 	uint8_t    base_near_mode;    //近程吊射基地模式(也包括吊前哨站)
 	uint8_t    fric_speed; 				//子弹射速(直接分几档)
-	
 	/* 尾 */
 	uint16_t  CRC16;
-	
 }extVisionSendData_t;
 
 

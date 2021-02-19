@@ -8,7 +8,6 @@
  
 /* Includes ------------------------------------------------------------------*/
 #include "drv_uart.h"
-
 #include "string.h"
 
 extern UART_HandleTypeDef huart1;
@@ -356,6 +355,32 @@ void USART1_Init(void)
 			  (uint32_t)usart1_dma_rxbuf, \
 			  USART1_RX_BUF_LEN);
 }
+
+
+/**
+ *	@brief	USART1 SendData
+ */
+void UART1_SendData(uint8_t *Data,uint16_t Size)
+{
+	HAL_UART_Transmit(&huart1,Data,Size,2);
+}
+
+/**
+ *	@brief	USART5 SendData
+ */
+void UART5_SendData(uint8_t *Data,uint16_t Size)
+{
+	HAL_UART_Transmit(&huart5,Data,Size,2);
+}
+
+void UART_SendData(drv_uart_t *drv,uint8_t *txData,uint16_t size)
+{
+	if(drv->type == DRV_UART1)
+		UART1_SendData( txData, size);
+	else if(drv->type == DRV_UART5)
+		UART5_SendData( txData, size);
+}
+
 /* rxData Handler [Weak] functions -------------------------------------------*/
 /**
  *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART1 处理协议

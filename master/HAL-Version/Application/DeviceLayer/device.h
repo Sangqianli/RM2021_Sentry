@@ -7,6 +7,7 @@
 #include "imu_sensor.h"
 #include "path_sensor.h"
 #include "motor.h"
+#include "vision_sensor.h"
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
@@ -15,6 +16,7 @@ typedef struct dev_list_struct {
 	imu_sensor_t		*imu_sen;
 	motor_t		*motor[MOTOR_CNT];
 	path_t              *path_sen;
+	vision_sensor_t     *vision_sen;
 } dev_list_t;
 
 extern dev_list_t dev_list;

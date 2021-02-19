@@ -68,7 +68,7 @@ typedef struct drv_pwm {
  */
 typedef struct drv_uart {
 	enum drv_type	type;
-	void			(*tx_byte)(struct drv_uart *self, uint8_t byte);
+	void			(*tx_byte)(struct drv_uart *self, uint8_t *byte,uint16_t size);
 } drv_uart_t;
 /**
  *	@brief	TIM+IO驱动(其实没有用)

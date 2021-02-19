@@ -28,6 +28,7 @@ static void device_heart_beat(void)
 	motor[DIAL].heart_beat(&motor[DIAL]);
 	motor[GIMBAL_PITCH].heart_beat(&motor[GIMBAL_PITCH]);
 	motor[GIMBAL_YAW].heart_beat(&motor[GIMBAL_YAW]);
+	vision_sensor.heart_beat(&vision_sensor);
 }
 
 static void system_led_flash(void)
@@ -42,6 +43,12 @@ static void system_led_flash(void)
 	}
 }
 
+static void device_get(void)
+{
+	imu_sensor.update(&imu_sensor);
+	path_sensor.update(&path_sensor);
+	path_sensor.check(&path_sensor);
+}
 /* Exported functions --------------------------------------------------------*/
 /**
  *	@brief	系统监控任务
@@ -53,9 +60,7 @@ void StartMonitorTask(void const * argument)
 	{
 		system_led_flash();
 		device_heart_beat();
-		imu_sensor.update(&imu_sensor);
-		path_sensor.update(&path_sensor);
-		path_sensor.check(&path_sensor);
+		device_get();
 		osDelay(1);
 	}
 }
