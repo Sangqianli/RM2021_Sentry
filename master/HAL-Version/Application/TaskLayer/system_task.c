@@ -27,12 +27,20 @@
 system_t sys = {
 	.remote_mode = RC,
 	.state = SYS_STATE_RCLOST,
-	.mode = SYS_MODE_NORMAL,
+	.auto_mode = AUTO_MODE_SCOUT,
+	.switch_state.SYS_RESET = false,
+	.switch_state.REMOTE_SWITCH = false,
+    .switch_state.AUTO_MODE_SWITCH = false,
+	.switch_state.ALL_READY	= false,
+	.fire_state.FRICTION_OPEN = false,
+	.fire_state.FIRE_OPEN = false,	
+	.predict_state.PREDICT_OPEN = false,
+	.predict_state.PREDICT_ACTION = false,
 };
 
 /* Private functions ---------------------------------------------------------*/
 /**
- *	@brief	更新遥控器数据信息(非正常状态下重置遥控信息)
+ *	@brief	通过遥控器更新系统信息(非正常状态下重置遥控信息)
  */
 static void rc_update_info(void)
 {
@@ -40,7 +48,14 @@ static void rc_update_info(void)
 			
 	}
 	else {
-		
+		if( (rc_sensor.info->s2 == RC_SW_MID)||(rc_sensor.info->s2 == RC_SW_DOWN) )
+		{
+			sys.remote_mode = RC;
+		}
+		else if(rc_sensor.info->s2 == RC_SW_UP)
+		{
+			sys.remote_mode = AUTO;
+		}
 	}
 }
 
@@ -49,24 +64,36 @@ static void rc_update_info(void)
  */
 static void system_ctrl_mode_switch(void)
 {
+	if( (rc_sensor.info->s2_switch_uptomid)||(rc_sensor.info->s2_siwtch_up) )
+	{
+		sys.switch_state.REMOTE_SWITCH = true;
+	}
 		
+	if(rc_sensor.info->s1_siwtch_up)
+	{
+		if(sys.fire_state.FRICTION_OPEN)
+			sys.fire_state.FRICTION_OPEN = false;
+		else 
+			sys.fire_state.FRICTION_OPEN = true;	
+		rc_sensor.info->s1_siwtch_up = false;
+	}
+	if(rc_sensor.info->s2_siwtch_down)
+	{
+		if(sys.fire_state.FIRE_OPEN)
+			sys.fire_state.FIRE_OPEN = false;
+		else
+			sys.fire_state.FIRE_OPEN = true;
+		rc_sensor.info->s2_siwtch_down = false;
+	}	
 }
 
-/**
- *	@brief	根据遥控器切换系统行为
- */
-static void system_mode_act_switch(void)
-{
-	
-}
 
 static void system_state_machine(void)
 {
-	// 控制方式切换
-	system_ctrl_mode_switch();
-	// 系统模式切换(键盘模式下才允许切换)
-	if(sys.remote_mode == KEY)
-		system_mode_act_switch();
+	if(sys.switch_state.ALL_READY)//系统正常且复位完成后允许切换
+	{
+	    system_ctrl_mode_switch();
+	}
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -99,11 +126,12 @@ void StartSystemTask(void const * argument)
 				{
 					// 可在此处同步云台复位标志位					
 					// 系统参数复位
+					sys.switch_state.SYS_RESET = true;//失联复位标志位
+					sys.switch_state.ALL_READY = false;//未复位好
 					sys.remote_mode = RC;
-					sys.state = SYS_STATE_NORMAL;
-					sys.mode = SYS_MODE_NORMAL;
+//					sys.state = SYS_STATE_NORMAL;
 				}
-				
+				sys.state = SYS_STATE_NORMAL;
 				// 可在此处等待云台复位后才允许切换状态
 				system_state_machine();
 			}

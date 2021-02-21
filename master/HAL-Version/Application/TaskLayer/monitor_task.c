@@ -33,14 +33,24 @@ static void device_heart_beat(void)
 
 static void system_led_flash(void)
 {
-	static uint16_t led_blue_flash = 0;
-	
-	led_blue_flash++;
-	if(led_blue_flash > 500) 
-	{
-		led_blue_flash = 0;
-		LED_BLUE_TOGGLE();
-	}
+    static int cnt=0;
+    static int colour=1;
+    if(colour==1)
+    {
+        LED_ORANGE_ON();
+        LED_BLUE_OFF();
+    }
+    if(colour==(-1))
+    {
+        LED_ORANGE_OFF();
+        LED_BLUE_ON();
+    }
+    cnt++;
+    if(cnt>500)
+    {
+        cnt=0;
+        colour=(-colour);
+    }
 }
 
 static void device_get(void)

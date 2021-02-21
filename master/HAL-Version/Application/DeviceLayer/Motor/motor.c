@@ -158,6 +158,7 @@ static void motor_heart_beat(motor_t *motor)
 	if(motor_info->offline_cnt > motor_info->offline_max_cnt) {
 		motor_info->offline_cnt = motor_info->offline_max_cnt;
 		motor->work_state = DEV_OFFLINE;
+		motor->info->init_flag = false;
 	}
 	else {
 		if(motor->work_state == DEV_OFFLINE)

@@ -169,8 +169,8 @@ typedef struct pid_ctrl {
 /* Remote Mode Enum */
 typedef enum {
 	RC = 0,
-	KEY = 1,
-	REMOTE_MODE_CNT = 2,
+	AUTO = 1,
+	REMOTE_MODE_CNT = 3,
 } remote_mode_t;
 
 typedef enum {
@@ -181,21 +181,34 @@ typedef enum {
 } sys_state_t;
 
 typedef enum {
-	SYS_MODE_NORMAL,	// 常规模式
-	SYS_MODE_CNT,
-} sys_mode_t;
+	AUTO_MODE_SCOUT,	// 侦察模式
+	AUTO_MODE_ATTACK,   //打击模式
+} auto_mode_t;
 
-//typedef struct {
-//	struct {
-//		uint8_t reset_start;
-//		uint8_t reset_ok;
-//	}gimbal;
-//} flag_t;
+typedef struct {
+	bool  SYS_RESET;
+	bool  REMOTE_SWITCH;
+	bool  AUTO_MODE_SWITCH;
+	bool  ALL_READY;
+}switch_state_t;
+
+typedef struct {
+	bool FRICTION_OPEN;      //开启摩擦轮
+	bool FIRE_OPEN;          //开启拨盘
+} fire_state_t;
+
+typedef struct{
+	bool PREDICT_OPEN;       //预测开启，有关数据处理
+	bool PREDICT_ACTION;     //预测作用，有关云台底盘运动
+} predict_state_t;
 
 typedef struct {
 	remote_mode_t		remote_mode;	// 控制方式
 	sys_state_t			state;			// 系统状态
-	sys_mode_t			mode;			// 系统模式
+	auto_mode_t			auto_mode;	    // 自瞄模式
+	switch_state_t      switch_state;   //各种转换状态
+	fire_state_t        fire_state;     //开火状态
+	predict_state_t     predict_state;  //预测状态
 } system_t;
 
 //extern flag_t	flag;

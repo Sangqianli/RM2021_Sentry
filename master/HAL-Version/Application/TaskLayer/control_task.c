@@ -32,7 +32,6 @@ void StartControlTask(void const * argument)
 		} else {
 			//module.self_protect();
 		}
-		
 		osDelay(2);
 	}
 }
