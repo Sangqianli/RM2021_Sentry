@@ -161,14 +161,15 @@ void CAN_SendSingleData(drv_can_t *drv, int16_t txData)
 }
 
 /**
- *	@brief	CAN 发送数据缓冲
+ *	@brief	CAN 发送数据串
  */
-void CAN_SendDataBuff(drv_type_t drv_type, uint32_t std_id, int16_t *txBuff)
+void CAN1_SendDataBuff( uint32_t std_id, int16_t *txBuff)
 {
-	if(drv_type == DRV_CAN1)
-		CAN1_SendData(std_id, txBuff);
-	else if(drv_type == DRV_CAN2)
 		CAN2_SendData(std_id, txBuff);
+}
+void CAN2_SendDataBuff( uint32_t std_id, int16_t *txBuff)
+{
+		CAN1_SendData(std_id, txBuff);
 }
 
 /**

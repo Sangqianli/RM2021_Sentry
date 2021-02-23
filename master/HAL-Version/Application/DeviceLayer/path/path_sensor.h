@@ -19,7 +19,7 @@ typedef struct path_info_struct {
 } path_info_t;
 
 typedef struct path_struct {
-	path_info_t 	*info;
+	path_info_t 	        *info;
 	drv_path_t				*driver;
 	void					(*init)(struct path_struct *self);
 	void					(*update)(struct path_struct *self);

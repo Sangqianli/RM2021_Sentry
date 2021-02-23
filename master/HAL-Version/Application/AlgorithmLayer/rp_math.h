@@ -2,8 +2,9 @@
 #define __MY_MATH_H
 
 #include "stm32f4xx_hal.h"
-
+#include "arm_math.h"
 #include "pid.h"
+#include "kalman.h"
 /*数据结构*/
 typedef struct
 {

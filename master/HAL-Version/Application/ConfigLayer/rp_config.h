@@ -189,6 +189,7 @@ typedef struct {
 	bool  SYS_RESET;
 	bool  REMOTE_SWITCH;
 	bool  AUTO_MODE_SWITCH;
+	bool  RESET_CAL;
 	bool  ALL_READY;
 }switch_state_t;
 

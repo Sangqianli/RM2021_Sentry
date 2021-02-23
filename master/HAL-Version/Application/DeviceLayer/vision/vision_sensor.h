@@ -110,7 +110,7 @@ typedef struct
 	uint8_t  		rx_data_valid;		// 接收数据的正确性
 	uint16_t 		rx_err_cnt;			// 接收数据的错误统计
 	uint32_t		rx_cnt;				// 接收数据包的统计
-	uint8_t 		rx_data_update;		// 接收数据是否更新
+	bool		    rx_data_update;		// 接收数据是否更新
 	uint32_t 		rx_time_prev;		// 接收数据的前一时刻
 	uint32_t 		rx_time_now;		// 接收数据的当前时刻
 	uint16_t 		rx_time_fps;		// 帧率

@@ -39,6 +39,15 @@ system_t sys = {
 };
 
 /* Private functions ---------------------------------------------------------*/
+static void Data_clear()
+{
+	pid_clear(&Gimbal_process.YAW_PPM);
+	pid_clear(&Gimbal_process.YAW_PVM);	
+	pid_clear(&Gimbal_process.PITCH_PPM);	
+	pid_clear(&Gimbal_process.PITCH_PVM);	
+	
+	
+}
 /**
  *	@brief	通过遥控器更新系统信息(非正常状态下重置遥控信息)
  */
@@ -67,6 +76,10 @@ static void system_ctrl_mode_switch(void)
 	if( (rc_sensor.info->s2_switch_uptomid)||(rc_sensor.info->s2_siwtch_up) )
 	{
 		sys.switch_state.REMOTE_SWITCH = true;
+		sys.switch_state.RESET_CAL = true;
+		sys.switch_state.ALL_READY = false;		
+		rc_sensor.info->s2_switch_uptomid = false;
+		rc_sensor.info->s2_siwtch_up = false;
 	}
 		
 	if(rc_sensor.info->s1_siwtch_up)
@@ -77,19 +90,21 @@ static void system_ctrl_mode_switch(void)
 			sys.fire_state.FRICTION_OPEN = true;	
 		rc_sensor.info->s1_siwtch_up = false;
 	}
-	if(rc_sensor.info->s2_siwtch_down)
+	if(rc_sensor.info->s1_siwtch_down)
 	{
 		if(sys.fire_state.FIRE_OPEN)
 			sys.fire_state.FIRE_OPEN = false;
 		else
 			sys.fire_state.FIRE_OPEN = true;
-		rc_sensor.info->s2_siwtch_down = false;
+		rc_sensor.info->s1_siwtch_down = false;
 	}	
 }
 
 
 static void system_state_machine(void)
 {
+	if( (sys.switch_state.REMOTE_SWITCH == false)&&(sys.switch_state.SYS_RESET == false) )
+		sys.switch_state.ALL_READY = true;
 	if(sys.switch_state.ALL_READY)//系统正常且复位完成后允许切换
 	{
 	    system_ctrl_mode_switch();
@@ -97,6 +112,13 @@ static void system_state_machine(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+void Application_Init()  //任务层初始化
+{
+	Chassis_Init();
+	Gimbal_Init();
+	Fire_Init();
+	Vision_Init();
+}
 /**
  *	@brief	系统决策任务
  */
@@ -114,6 +136,7 @@ void StartSystemTask(void const * argument)
 		{
 			sys.state = SYS_STATE_RCLOST;
 			RC_ResetData(&rc_sensor);
+			Data_clear();//清除任务信息
 		} 
 		/* 遥控在线 */
 		else if(rc_sensor.work_state == DEV_ONLINE)
@@ -127,6 +150,7 @@ void StartSystemTask(void const * argument)
 					// 可在此处同步云台复位标志位					
 					// 系统参数复位
 					sys.switch_state.SYS_RESET = true;//失联复位标志位
+					sys.switch_state.RESET_CAL = true;
 					sys.switch_state.ALL_READY = false;//未复位好
 					sys.remote_mode = RC;
 //					sys.state = SYS_STATE_NORMAL;

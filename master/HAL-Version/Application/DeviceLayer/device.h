@@ -9,6 +9,9 @@
 #include "motor.h"
 #include "vision_sensor.h"
 
+#include "can_potocol.h"
+#include "vision_potocol.h"
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 typedef struct dev_list_struct {

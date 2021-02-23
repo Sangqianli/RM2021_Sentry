@@ -1,19 +1,21 @@
-#ifndef __CAN_POTOCOL_H
-#define __CAN_POTOCOL_H
+#ifndef __FIRE_TASK_H
+#define __FIRE_TASK_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "rp_config.h"
+#include "rp_math.h"
+#include "system_task.h"
 
 /* Exported macro ------------------------------------------------------------*/
-#define CHASSIS_CAN_ID	0x201U
-#define DIAL_CAN_ID	    0x202U
-#define GIMBAL_CAN_ID_PITCH	0x209U
-#define GIMBAL_CAN_ID_YAW	0x210U
-
 /* Exported types ------------------------------------------------------------*/
+typedef struct Fire{
+	pid_ctrl_t PPM;
+	pid_ctrl_t PVM;
+	bool       Stuck_flag;
+	float      Speed_target;
+	int16_t    Friction_target;
+}Fire_t;
 /* Exported functions --------------------------------------------------------*/
-void CAN_SendSingleData(drv_can_t *drv, int16_t txData);
-void CAN1_SendDataBuff( uint32_t std_id, int16_t *txBuff);
-void CAN2_SendDataBuff( uint32_t std_id, int16_t *txBuff);
-
+void Fire_Init(void);
+void StartFireTask(void const * argument);
 #endif

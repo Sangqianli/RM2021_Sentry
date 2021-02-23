@@ -58,6 +58,7 @@ static void device_get(void)
 	imu_sensor.update(&imu_sensor);
 	path_sensor.update(&path_sensor);
 	path_sensor.check(&path_sensor);
+	Update_Gimbal_Angle_Queue(motor[GIMBAL_YAW].info->angle_sum);//更新云台队列
 }
 /* Exported functions --------------------------------------------------------*/
 /**
@@ -65,7 +66,6 @@ static void device_get(void)
  */
 void StartMonitorTask(void const * argument)
 {
-	//LED_RED_ON();
 	for(;;)
 	{
 		system_led_flash();

@@ -152,7 +152,6 @@ void Vision_task()
                 Clear_Queue(&target_accel);
                 Clear_Queue(&target_distance_tendency);
                 /*清除队列信息，防止下一次数据受到影响*/
-//				predict_delay_cnt = 0;	 	/*重置预测计数*/
                 predict_angle_raw=0;//清0预测角
                 predict_flag = false;			/*关闭预测*/
             }

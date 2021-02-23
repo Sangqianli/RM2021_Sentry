@@ -526,6 +526,26 @@
               <FileType>1</FileType>
               <FilePath>..\Application\TaskLayer\control_task.c</FilePath>
             </File>
+            <File>
+              <FileName>chassis_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\TaskLayer\chassis_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>gimbal_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\TaskLayer\gimbal_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>fire_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\TaskLayer\fire_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>vision_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\TaskLayer\vision_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

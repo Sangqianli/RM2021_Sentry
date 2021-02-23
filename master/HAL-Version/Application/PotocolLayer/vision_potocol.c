@@ -51,7 +51,7 @@ void vision_update(vision_sensor_t *vision_sen, uint8_t *rxBuf)
 				memcpy(&vision_info->RxPacket, rxBuf, LEN_VISION_RX_PACKET);
 				vision_info->State.rx_data_update = true;	// 视觉数据更新				
 				/* 帧率计算 */
-				vision_info->State.rx_time_now = xTaskGetTickCountFromISR();//FromISR???
+				vision_info->State.rx_time_now = xTaskGetTickCountFromISR();
 				vision_info->State.rx_time_fps = vision_info->State.rx_time_now - vision_info->State.rx_time_prev;
 				vision_info->State.rx_time_prev = vision_info->State.rx_time_now;		
 				vision_info->State.offline_cnt=0;
