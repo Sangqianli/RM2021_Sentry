@@ -24,8 +24,10 @@ void pid_calculate(pid_ctrl_t *pid)
 	// p i d 输出项计算
 	pid->pout = pid->kp * pid->err;
 	pid->integral += pid->err;
-	pid->iout = pid->ki * pid->integral;
-	pid->iout =  constrain(pid->integral, -pid->integral_max, +pid->integral_max);
+//	pid->integral = constrain(pid->integral, -pid->integral_max, +pid->integral_max);
+//	pid->iout = pid->ki * pid->integral;
+	pid->iout += (pid->ki * pid->err);
+	pid->iout = constrain(pid->iout, -pid->integral_max, +pid->integral_max);
     pid->dout = pid->kd * (pid->err - pid->last_err);
 	// 累加pid输出值
 	pid->out = pid->pout + pid->iout + pid->dout;

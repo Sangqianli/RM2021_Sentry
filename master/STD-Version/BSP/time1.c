@@ -30,7 +30,7 @@ void TIM1_Init(void)
   TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 
   TIM_TimeBaseStructure.TIM_Prescaler = 0x0;    // No prescaling 
-  TIM_TimeBaseStructure.TIM_Period = 1200 * 2 - 1; 
+  TIM_TimeBaseStructure.TIM_Period = 4000-1; 
   TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;   
   TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);

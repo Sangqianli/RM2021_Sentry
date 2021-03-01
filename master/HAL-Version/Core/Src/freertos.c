@@ -51,6 +51,10 @@
 osThreadId MonitorTaskHandle;
 osThreadId ControlTaskHandle;
 osThreadId SystemTaskHandle;
+osThreadId ChassisTaskHandle;
+osThreadId GimbalTaskHandle;
+osThreadId FireTaskHandle;
+osThreadId VisionTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -60,6 +64,10 @@ osThreadId SystemTaskHandle;
 void StartMonitorTask(void const * argument);
 extern void StartControlTask(void const * argument);
 extern void StartSystemTask(void const * argument);
+extern void StartChassisTask(void const * argument);
+extern void StartGimbalTask(void const * argument);
+extern void StartFireTask(void const * argument);
+extern void StartVisionTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -111,12 +119,28 @@ void MX_FREERTOS_Init(void) {
   MonitorTaskHandle = osThreadCreate(osThread(MonitorTask), NULL);
 
   /* definition and creation of ControlTask */
-  osThreadDef(ControlTask, StartControlTask, osPriorityAboveNormal, 0, 128);
+  osThreadDef(ControlTask, StartControlTask, osPriorityHigh, 0, 256);
   ControlTaskHandle = osThreadCreate(osThread(ControlTask), NULL);
 
   /* definition and creation of SystemTask */
-  osThreadDef(SystemTask, StartSystemTask, osPriorityNormal, 0, 128);
+  osThreadDef(SystemTask, StartSystemTask, osPriorityNormal, 0, 256);
   SystemTaskHandle = osThreadCreate(osThread(SystemTask), NULL);
+
+  /* definition and creation of ChassisTask */
+  osThreadDef(ChassisTask, StartChassisTask, osPriorityHigh, 0, 256);
+  ChassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
+
+  /* definition and creation of GimbalTask */
+  osThreadDef(GimbalTask, StartGimbalTask, osPriorityHigh, 0, 256);
+  GimbalTaskHandle = osThreadCreate(osThread(GimbalTask), NULL);
+
+  /* definition and creation of FireTask */
+  osThreadDef(FireTask, StartFireTask, osPriorityHigh, 0, 256);
+  FireTaskHandle = osThreadCreate(osThread(FireTask), NULL);
+
+  /* definition and creation of VisionTask */
+  osThreadDef(VisionTask, StartVisionTask, osPriorityHigh, 0, 256);
+  VisionTaskHandle = osThreadCreate(osThread(VisionTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   

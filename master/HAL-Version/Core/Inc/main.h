@@ -58,10 +58,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_BLUE_Pin GPIO_PIN_13
-#define LED_BLUE_GPIO_Port GPIOC
-#define LED_ORANGE_Pin GPIO_PIN_14
+#define LED_ORANGE_Pin GPIO_PIN_13
 #define LED_ORANGE_GPIO_Port GPIOC
+#define LED_GREEN_Pin GPIO_PIN_14
+#define LED_GREEN_GPIO_Port GPIOC
 #define CAP_VOL_IN_Pin GPIO_PIN_0
 #define CAP_VOL_IN_GPIO_Port GPIOC
 #define S_CHARGE_Pin GPIO_PIN_3
@@ -86,8 +86,8 @@ void Error_Handler(void);
 #define INPUT_RIGHT_GPIO_Port GPIOD
 #define INPUT_LEFT_Pin GPIO_PIN_13
 #define INPUT_LEFT_GPIO_Port GPIOD
-#define LED_GREEN_Pin GPIO_PIN_10
-#define LED_GREEN_GPIO_Port GPIOC
+#define LED_BLUE_Pin GPIO_PIN_10
+#define LED_BLUE_GPIO_Port GPIOC
 #define LED_RED_Pin GPIO_PIN_11
 #define LED_RED_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */

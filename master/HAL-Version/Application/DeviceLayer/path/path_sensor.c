@@ -11,6 +11,8 @@
 #include "drv_io.h"
 #include "rp_math.h"
 #include "device.h"
+
+extern TIM_HandleTypeDef htim1;
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static void path_update(path_t *path);
@@ -80,16 +82,17 @@ static void path_update(path_t *path)
 		delay_right=0;
 	}
 
-    path_info->mileage_now=(int16_t)TIM1->CNT;
+    path_info->mileage_now=(int32_t)TIM1->CNT;
     path_info->mileage_prev=path_info->mileage_now;	
+	if(path_info->mileage_now>2000)
+		path_info->mileage_now-=4000;
+	path_info->mileage_total+=path_info->mileage_now;
 	TIM1->CNT=0;
 }
 static void path_check(path_t *path)
 {
-	path_info_t *path_info = path->info;
-	if(path_info->mileage_now>2000)
-		path_info->mileage_now-=4000;
-	path_info->mileage_total+=path_info->mileage_now;
+//	path_info_t *path_info = path->info;
+
 }
 
 static void path_heart_beat(path_t *path)

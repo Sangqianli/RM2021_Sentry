@@ -7,8 +7,8 @@
 #define Pathway_CM 260
 #define Mileage_total (Pathway_CM/Encoder_CM)*2400
 
-#define Normal_Speed -3000
-#define Swerve_Ratio 0.1
+#define Normal_Speed -3500
+#define Swerve_Ratio 0.2
 
 #define Left_PES PDin(12)			/*白线，右手边光电开关*/
 #define Right_PES PDin(13)		/*黑线，左手边光电开关*/

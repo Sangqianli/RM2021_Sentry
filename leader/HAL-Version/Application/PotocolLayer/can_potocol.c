@@ -124,7 +124,7 @@ void chassis_motor_update(chassis_motor_t *chas_motor, uint8_t *rxBuf)
 	motor_info->speed = CAN_GetMotorSpeed(rxBuf);
 	motor_info->current = CAN_GetMotorCurrent(rxBuf);
 	
-	motor_info->offline_cnt = 0;
+	motor_info->offline_cnt = 0;//
 }
 
 void chassis_motor_init(chassis_motor_t *motor)

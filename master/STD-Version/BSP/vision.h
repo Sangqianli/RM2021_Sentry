@@ -49,10 +49,10 @@ typedef __packed struct
 	float yaw_angle;
 	float distance;
 	uint8_t identify_target;// 是否识别到目标	单位：0/1
+	uint8_t anti_gyro;	// 是否识别到小陀螺	单位：0/1	
 	uint8_t buff_change_armor_four;	// 是否切换到第四块装甲板		单位：0/1
 	uint8_t identify_buff;	// 是否识别到Buff	单位：0/1
 	uint8_t identify_too_close;	// 目标距离过近	单位：0/1
-	uint8_t anti_gyro;	// 是否识别到小陀螺	单位：0/1
 	uint8_t	anti_gyro_change_armor;	// 是否在反陀螺状态下切换装甲板	单位：0/1
 	/*尾*/
 	uint16_t CRC16;

@@ -84,7 +84,7 @@ u32 rec2 = 0;
 u32 rec3 = 0;
 u32 rec4 = 0;
 
-u8 length_total = 18;
+u8 length_total = 20;
 
 extVisionRecvData_t Vision_receive;
 

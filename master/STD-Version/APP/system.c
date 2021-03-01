@@ -232,6 +232,7 @@ void Loop(void)
 
     if(TimeFlag.ms_2>=2)
     {
+		Chassis_Data();
         if(SystemMonitor == Normal_Mode)
         {
 //            Launcher_task();

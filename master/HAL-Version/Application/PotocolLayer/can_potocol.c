@@ -165,11 +165,11 @@ void CAN_SendSingleData(drv_can_t *drv, int16_t txData)
  */
 void CAN1_SendDataBuff( uint32_t std_id, int16_t *txBuff)
 {
-		CAN2_SendData(std_id, txBuff);
+		CAN1_SendData(std_id, txBuff);
 }
 void CAN2_SendDataBuff( uint32_t std_id, int16_t *txBuff)
 {
-		CAN1_SendData(std_id, txBuff);
+		CAN2_SendData(std_id, txBuff);
 }
 
 /**
@@ -188,29 +188,26 @@ void CAN2_rxDataHandler(uint32_t canId, uint8_t *rxBuf)
 	/* 底盘3508 */
 	if(canId == CHASSIS_CAN_ID)
 	{
-		// 更新底盘电机数据
 		motor[CHASSIS].update(&motor[CHASSIS], rxBuf);
 		motor[CHASSIS].check(&motor[CHASSIS]);
 	}
 	/* 拨盘 */
 	else if(canId == DIAL_CAN_ID)
 	{
-		// 更新底盘电机数据
 		motor[DIAL].update(&motor[DIAL], rxBuf);
 		motor[DIAL].check(&motor[DIAL]);
 	}
 	/* Pitch轴6020 */
 	else if(canId == GIMBAL_CAN_ID_PITCH)
 	{
-		// 更新底盘电机数据
 		motor[GIMBAL_PITCH].update(&motor[GIMBAL_PITCH], rxBuf);
 		motor[GIMBAL_PITCH].check(&motor[GIMBAL_PITCH]);
+	
 	}
 	/* Yaw轴6020 */
 	else if(canId == GIMBAL_CAN_ID_YAW)
 	{
-		// 更新底盘电机数据
-		motor[GIMBAL_YAW].update(&motor[GIMBAL_YAW], rxBuf);
+		motor[GIMBAL_YAW].update(&motor[GIMBAL_YAW], rxBuf);		
 		motor[GIMBAL_YAW].check(&motor[GIMBAL_YAW]);
 	}	
 }

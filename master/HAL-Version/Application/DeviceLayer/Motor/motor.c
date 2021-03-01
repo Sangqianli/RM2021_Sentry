@@ -137,8 +137,10 @@ static void motor_check(motor_t *motor)
 		/* 0¡ı -> 8191 */
 		if(err >= 0)
 			motor_info->angle_sum += -8191 + err;
+//		    round--;
 		/* 8191¡ü -> 0 */
 		else
+//			round++;
 			motor_info->angle_sum += 8191 + err;
 	}
 	/* Î´¹ıÁãµã */

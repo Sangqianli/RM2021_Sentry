@@ -22,8 +22,8 @@ void Launcher_Init()
 
     Launcher_Dial.PID_PVM.target=0;
     Launcher_Dial.PID_PVM.target=0;
-    Launcher_Dial.PID_PVM.kp=8;
-    Launcher_Dial.PID_PVM.ki=0.02;
+    Launcher_Dial.PID_PVM.kp=4;
+    Launcher_Dial.PID_PVM.ki=0.1;
     Launcher_Dial.PID_PVM.kd=0;
     Launcher_Dial.PID_PVM.output=0;
     Launcher_Dial.PID_PVM.IntegralLimit=3000;

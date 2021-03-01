@@ -21,19 +21,21 @@ typedef struct
 } Visual_TypeDef;
 
 
-typedef struct{
-	QueueObj speed_queue;
-	QueueObj accel_queue;	
-	QueueObj dis_queue;	
-	Visual_TypeDef  data_kal;
-	float predict_angle;
-	float feedforwaurd_angle;
-	float speed_get;
-	float accel_get;
-	float distend_get;
-	float offset_yaw;
-	float offset_pitch;
-}Vision_process_t;
+typedef struct {
+    QueueObj speed_queue;
+    QueueObj accel_queue;
+    QueueObj dis_queue;
+    Visual_TypeDef  data_kal;
+    float predict_angle;
+    float feedforwaurd_angle;
+    float speed_get;
+    float accel_get;
+    float distend_get;
+    float offset_yaw;
+    float offset_pitch;
+} Vision_process_t;
+
+extern Vision_process_t Vision_process;
 /* Exported functions --------------------------------------------------------*/
 void Vision_Init(void);
 void StartVisionTask(void const * argument);

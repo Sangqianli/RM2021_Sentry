@@ -32,7 +32,7 @@ dev_list_t dev_list = {
 void DEV_Init(void)
 {
 	dev_list.rc_sen->init(dev_list.rc_sen);
-	dev_list.imu_sen->init(dev_list.imu_sen);
+//	dev_list.imu_sen->init(dev_list.imu_sen);
 	dev_list.path_sen->init(dev_list.path_sen);
 	dev_list.motor[CHASSIS]->init(dev_list.motor[CHASSIS]);
 	dev_list.motor[DIAL]->init(dev_list.motor[DIAL]);

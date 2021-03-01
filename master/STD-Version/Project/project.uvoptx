@@ -213,7 +213,7 @@
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Vision_receive</ItemText>
+          <ItemText>Vision_receive,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>12</count>
@@ -224,6 +224,21 @@
           <count>13</count>
           <WinNumber>1</WinNumber>
           <ItemText>vision_update_fps,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\project\../BSP/vision.c\Vision_receive.buff_change_armor_four</ItemText>
+        </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>swerve_judge</ItemText>
+        </Ww>
+        <Ww>
+          <count>16</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>CmdID,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -306,6 +321,11 @@
           <count>15</count>
           <WinNumber>2</WinNumber>
           <ItemText>tim_cnt,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>16</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>((TIM_TypeDef *) ((((uint32_t)0x40000000) + 0x00010000) + 0x0000)),0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>

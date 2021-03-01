@@ -8,7 +8,7 @@
  
 /* Includes ------------------------------------------------------------------*/
 #include "driver.h"
-
+#include "imu_sensor.h"
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private typedef -----------------------------------------------------------*/
@@ -18,6 +18,7 @@
 /* Exported functions --------------------------------------------------------*/
 void DRIVER_Init(void)
 {
+    imu_sensor.init(&imu_sensor);
 	PWM_Init();
 	ENCODER_Init();
     ADC_Init();

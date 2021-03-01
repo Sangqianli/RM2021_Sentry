@@ -94,7 +94,7 @@ static void rc_sensor_check(rc_sensor_t *rc_sen)
 					rc_info->s1_switch_downtomid=true;	
 				break;
 			case RC_SW_DOWN:
-				if(rc_info->s1_pre==RC_SW_DOWN)
+				if(rc_info->s1_pre==RC_SW_MID)
 					rc_info->s1_siwtch_down=true;				
 				break;
 			default:
@@ -117,7 +117,7 @@ static void rc_sensor_check(rc_sensor_t *rc_sen)
 					rc_info->s2_switch_downtomid=true;	
 				break;
 			case RC_SW_DOWN:
-				if(rc_info->s2_pre==RC_SW_DOWN)
+				if(rc_info->s2_pre==RC_SW_MID)
 					rc_info->s2_siwtch_down=true;				
 				break;
 			default:

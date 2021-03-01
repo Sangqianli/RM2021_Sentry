@@ -117,7 +117,7 @@ static void uart_rx_idle_callback(UART_HandleTypeDef* huart)
 		__HAL_DMA_DISABLE(huart->hdmarx);
 		/* handle dbus data dbus_buf from DMA */
 		USART1_rxDataHandler(usart1_dma_rxbuf);
-		memset(usart1_dma_rxbuf, 0, USART5_RX_BUF_LEN);
+		memset(usart1_dma_rxbuf, 0, USART1_RX_BUF_LEN);
 		/* restart dma transmission */	  
 		__HAL_DMA_ENABLE(huart->hdmarx);
 	}
@@ -362,7 +362,7 @@ void USART1_Init(void)
  */
 void UART1_SendData(uint8_t *Data,uint16_t Size)
 {
-	HAL_UART_Transmit(&huart1,Data,Size,2);
+	HAL_UART_Transmit(&huart1,Data,Size,1);
 }
 
 /**
@@ -370,7 +370,7 @@ void UART1_SendData(uint8_t *Data,uint16_t Size)
  */
 void UART5_SendData(uint8_t *Data,uint16_t Size)
 {
-	HAL_UART_Transmit(&huart5,Data,Size,2);
+	HAL_UART_Transmit(&huart5,Data,Size,1);
 }
 
 void UART_SendData(drv_uart_t *drv,uint8_t *txData,uint16_t size)

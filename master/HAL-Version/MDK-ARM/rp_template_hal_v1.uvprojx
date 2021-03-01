@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,__CC_ARM,ARM_MATH_CM4,__TARGET_FPU_VFP,__FPU_PRESENT=1U</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\Application\DriverLayer;..\Application\DeviceLayer\Imu;..\Application\DeviceLayer\Motor;..\Application\DeviceLayer\Sensor;..\Application\DeviceLayer;..\Application\ModuleLayer;..\Application\TaskLayer;..\Application\AlgorithmLayer;..\Application\ConfigLayer;..\Application\PotocolLayer;..\Drivers\CMSIS\DSP\Include;..\Application\DeviceLayer\path;..\Application\DeviceLayer\vision</IncludePath>
+              <IncludePath>../Core/Inc;       ../Drivers/STM32F4xx_HAL_Driver/Inc;       ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;       ../Middlewares/Third_Party/FreeRTOS/Source/include;       ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;       ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;       ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;       ../Drivers/CMSIS/Include;       ..\Application\DriverLayer;       ..\Application\DeviceLayer\Imu;       ..\Application\DeviceLayer\Motor;       ..\Application\DeviceLayer\Sensor;       ..\Application\DeviceLayer;       ..\Application\ModuleLayer;       ..\Application\TaskLayer;       ..\Application\AlgorithmLayer;       ..\Application\ConfigLayer;       ..\Application\PotocolLayer;       ..\Drivers\CMSIS\DSP\Include;       ..\Application\DeviceLayer\path;       ..\Application\DeviceLayer\vision</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -567,6 +567,11 @@
               <FilePath>..\Application\AlgorithmLayer\kalman.c</FilePath>
             </File>
             <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/main.c</FilePath>
+            </File>
+            <File>
               <FileName>kalman_filter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Application\AlgorithmLayer\kalman_filter.c</FilePath>
@@ -616,11 +621,6 @@
         <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/main.c</FilePath>
-            </File>
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>

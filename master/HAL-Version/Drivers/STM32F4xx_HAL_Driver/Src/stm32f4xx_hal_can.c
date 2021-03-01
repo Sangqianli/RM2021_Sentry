@@ -1304,7 +1304,11 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderType
       }
 
       /* Set up the DLC */
-      hcan->Instance->sTxMailBox[transmitmailbox].TDTR = (pHeader->DLC);
+//	  pHeader->DLC&= (uint8_t)0x0000000F;
+//	  hcan->Instance->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;	  
+//      hcan->Instance->sTxMailBox[transmitmailbox].TDTR |= (pHeader->DLC);
+	  
+	  hcan->Instance->sTxMailBox[transmitmailbox].TDTR = (pHeader->DLC);
 
       /* Set up the Transmit Global Time mode */
       if (pHeader->TransmitGlobalTime == ENABLE)

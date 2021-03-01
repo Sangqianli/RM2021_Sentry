@@ -120,31 +120,31 @@ void CAN2_Init(void)
 uint8_t CAN_SendData(CAN_HandleTypeDef *hcan, uint32_t stdId, int16_t *dat)
 {
 	uint32_t txMailBox;
-	CAN_TxFrameTypeDef *txFrame;
+	CAN_TxFrameTypeDef txFrame;
 	
-	if(hcan->Instance == CAN1)
-		txFrame = &hcan1TxFrame;
-	else if(hcan->Instance == CAN2)
-		txFrame = &hcan2TxFrame;
-	else
-		return HAL_ERROR;
+//	if(hcan->Instance == CAN1)
+//		txFrame = &hcan1TxFrame;
+//	else if(hcan->Instance == CAN2)
+//		txFrame = &hcan2TxFrame;
+//	else
+//		return HAL_ERROR;
 	
-	txFrame->header.StdId = stdId;
-	txFrame->header.IDE = CAN_ID_STD;
-	txFrame->header.RTR = CAN_RTR_DATA;
-	txFrame->header.DLC = 8;
+	txFrame.header.StdId = stdId;
+	txFrame.header.IDE = CAN_ID_STD;
+	txFrame.header.RTR = CAN_RTR_DATA;
+	txFrame.header.DLC = 8;
 	
 	// 先发高8位数据，再发低8位数据
-	txFrame->data[0] = (uint8_t)((int16_t)dat[0] >> 8);
-	txFrame->data[1] = (uint8_t)((int16_t)dat[0]);
-	txFrame->data[2] = (uint8_t)((int16_t)dat[1] >> 8);
-	txFrame->data[3] = (uint8_t)((int16_t)dat[1]);
-	txFrame->data[4] = (uint8_t)((int16_t)dat[2] >> 8);
-	txFrame->data[5] = (uint8_t)((int16_t)dat[2]);
-	txFrame->data[6] = (uint8_t)((int16_t)dat[3] >> 8);
-	txFrame->data[7] = (uint8_t)((int16_t)dat[3]);		
-
-	if(HAL_CAN_AddTxMessage(hcan, &txFrame->header, &txFrame->data[0], &txMailBox) != HAL_OK)
+	txFrame.data[0] = (uint8_t)((int16_t)dat[0] >> 8);
+	txFrame.data[1] = (uint8_t)((int16_t)dat[0]);
+	txFrame.data[2] = (uint8_t)((int16_t)dat[1] >> 8);
+	txFrame.data[3] = (uint8_t)((int16_t)dat[1]);
+	txFrame.data[4] = (uint8_t)((int16_t)dat[2] >> 8);
+	txFrame.data[5] = (uint8_t)((int16_t)dat[2]);
+	txFrame.data[6] = (uint8_t)((int16_t)dat[3] >> 8);
+	txFrame.data[7] = (uint8_t)((int16_t)dat[3]);	
+	
+	if(HAL_CAN_AddTxMessage(hcan, &txFrame.header, &txFrame.data[0], &txMailBox) != HAL_OK)
 	{
 		return HAL_ERROR;
 	}

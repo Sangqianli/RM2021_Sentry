@@ -11,7 +11,7 @@
 
 #include "bmi.h"
 
-#include "imu_sensor.h"
+
 
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/

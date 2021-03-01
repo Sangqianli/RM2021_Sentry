@@ -30,15 +30,15 @@ void Chassis_Init()
 }
 
 
- int32_t tim_cnt=0;	/*读取定时器计数器的变量*/
+int32_t tim_cnt=0;	/*读取定时器计数器的变量*/
 int32_t Get_Position(void)
 {
- 
+
 
     tim_cnt = (int32_t)TIM1->CNT;			/*读取定时器1的计数值*/
 
-    if(tim_cnt>1200)
-        tim_cnt -= 2400;		/*定时器的计数值为2400，因为使用了定时器的编码器接口，所以是会根据AB相相位关系来进行加减。所以当数值大于1200时，认为其为反向加即在0的左边*/
+    if(tim_cnt>2000)
+        tim_cnt -= 4000;		/*定时器的计数值为2400，因为使用了定时器的编码器接口，所以是会根据AB相相位关系来进行加减。所以当数值大于1200时，认为其为反向加即在0的左边*/
 
     TIM1->CNT = 0;		/*计数值需要清0*/
 
@@ -89,21 +89,21 @@ void Cruise_Normal()
             if(delay_dir>40)
             {
                 delay_dir=0;
-				swerve_judge=true;//开始反弹判断
-				Derection_Flag=-1;//向右跑轨				
+                swerve_judge=true;//开始反弹判断
             }
         }
-		
-		if(swerve_judge==true)
-		{
-			if(left_PES==false)//反弹至点触开关释放
-			{
 
-                mileage=0;//清空里程数				
-				swerve_judge=false;
-				swerve_flag=false;//反弹完成
-			}
-		}
+        if(swerve_judge==true)
+        {
+            if(left_PES==false)//反弹至点触开关释放
+            {
+
+                mileage=0;//清空里程数
+                swerve_judge=false;
+                swerve_flag=false;//反弹完成
+                Derection_Flag=-1;//向右跑轨;				
+            }
+        }
     }//左
 
     if(Derection_Flag==-1)
@@ -114,40 +114,43 @@ void Cruise_Normal()
             if(delay_dir>40)
             {
                 delay_dir=0;
-				swerve_judge=true;//开始反弹判断
-				Derection_Flag=1;//向左跑轨								
+                swerve_judge=true;//开始反弹判断
             }
         }
-		
-		if(swerve_judge==true)
-		{
-			if(right_PES==false)//反弹至点触开关释放
-			{
 
-				mileage_max=mileage;//记录最大里程数
-				swerve_judge=false;
-				swerve_flag=false;//反弹完成
-			}
-		}		
+        if(swerve_judge==true)
+        {
+            if(right_PES==false)//反弹至点触开关释放
+            {
+
+                mileage_max=mileage;//记录最大里程数
+                swerve_judge=false;
+                swerve_flag=false;//反弹完成
+                Derection_Flag=1;//向左跑轨				
+            }
+        }
     }//右
-   Chassis.PID_PVM.target=Derection_Flag*Normal_Speed;
+    Chassis.PID_PVM.target=Derection_Flag*Normal_Speed;
 }
 
 /*进入能量回收范围的处理*/
 void Chassis_Control()
-{	
-//	if( ( (mileage_max-mileage)<=(mileage_max*Swerve_Ratio) )  || ( (mileage<(mileage_max*Swerve_Ratio)) ) )
-//	{
-//		swerve_flag=true;//反弹流程开始
-//	}
-//	
-//	if(swerve_flag==true)
-//		Chassis.PID_PVM.output=0;
-//	else//没有反弹，正常巡航
-//	{
+{
+    pid_calculate(&Chassis.PID_PVM);
+    if(init_flag == true)		/*对里程完成初始化*/
+    {
+//        if( ( (mileage_max-mileage)<=(mileage_max*Swerve_Ratio) )  || ( (mileage<(mileage_max*Swerve_Ratio)) ) )
+//        {
+//            swerve_flag=true;//反弹流程开始
+//        }
 
-		 pid_calculate(&Chassis.PID_PVM);
-//	}
+        if(swerve_judge==true)
+            Chassis.PID_PVM.output=0;
+        else//没有反弹，正常巡航
+        {
+            Chassis.PID_PVM.target=Derection_Flag*Normal_Speed;
+        }
+    }
 }
 
 
@@ -165,7 +168,7 @@ void Chassis_task()
     }
 
     Chassis_Data();
-	
+
     if(Remote_Mode)
     {
 
@@ -245,8 +248,8 @@ void Chassis_task()
 
                     step=0;																							/*复位step*/
                     init_flag=true;											/*更新标志位*/
-					
-					Derection_Flag=1;//向左运动标志位
+
+                    Derection_Flag=1;//向左运动标志位
                 }
                 break;
             }
@@ -257,8 +260,8 @@ void Chassis_task()
             Cruise_Normal();
         }
     }
-    
-	Chassis_Control();
+
+    Chassis_Control();
 }
 
 
