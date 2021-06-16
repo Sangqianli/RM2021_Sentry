@@ -103,6 +103,17 @@ typedef struct rc_sensor_info_struct {
 	uint16_t	key_v;
 	int16_t 	thumbwheel;	
 	
+	uint8_t     s1_pre;
+	uint8_t     s2_pre;	
+	bool     s1_siwtch_up;
+	bool     s1_switch_uptomid;
+	bool     s1_switch_downtomid;	
+	bool     s1_siwtch_down;
+	bool     s2_siwtch_up;
+	bool     s2_switch_uptomid;
+	bool     s2_switch_downtomid;	
+	bool     s2_siwtch_down;	
+	uint8_t     init_flag;
 	int16_t		offline_cnt;
 	int16_t		offline_max_cnt;
 } rc_sensor_info_t;

@@ -15,11 +15,15 @@
 extern void motor_update(motor_t *motor, uint8_t *rxBuf);
 extern void motor_init(motor_t *motor);
 
+extern void leader_update(leader_t *leader, uint8_t *rxBuf);
+extern void leader_init(leader_t *leader);
+
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static void motor_check(motor_t *motor);
 static void motor_heart_beat(motor_t *motor);
 
+static void leader_heart_beat(leader_t *leader);
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Exported variables --------------------------------------------------------*/
@@ -115,6 +119,18 @@ motor_t	   motor[] = {
 	},
 };
 
+leader_info_t 	leader_info = {
+	.offline_max_cnt = 50,
+};
+
+leader_t leader_sensor = {
+	.info = &leader_info,
+	.init = leader_init,
+	.update = leader_update,
+	.heart_beat = leader_heart_beat,
+	.work_state = DEV_OFFLINE,
+};
+
 /* Private functions ---------------------------------------------------------*/
 static void motor_check(motor_t *motor)
 {
@@ -165,6 +181,22 @@ static void motor_heart_beat(motor_t *motor)
 	else {
 		if(motor->work_state == DEV_OFFLINE)
 			motor->work_state = DEV_ONLINE;
+	}
+}
+
+static void leader_heart_beat(leader_t *leader)
+{
+	leader_info_t *leader_info = leader->info;
+	
+	leader_info->offline_cnt++;      //正常连接时会在can中断中清零
+	if(leader_info->offline_cnt > leader_info->offline_max_cnt) {
+		leader_info->offline_cnt = leader_info->offline_max_cnt;
+		leader->work_state = DEV_OFFLINE;
+		leader->info->init_flag = false;
+	}
+	else {
+		if(leader->work_state == DEV_OFFLINE)
+			leader->work_state = DEV_ONLINE;
 	}
 }
 

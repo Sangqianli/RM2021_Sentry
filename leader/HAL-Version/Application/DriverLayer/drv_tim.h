@@ -12,5 +12,6 @@
 /* Exported functions --------------------------------------------------------*/
 void PWM_Init(void);
 void ENCODER_Init(void);
+void FRICTION_PwmOut(int16_t pwm1, int16_t pwm2);
 
 #endif

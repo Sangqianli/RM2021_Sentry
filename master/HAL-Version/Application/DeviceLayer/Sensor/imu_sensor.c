@@ -51,6 +51,13 @@ static void imu_sensor_check(imu_sensor_t *imu_sen)
 	imu_info->rate_yaw -= imu_info->rate_yaw_offset;
 	imu_info->rate_pitch -= imu_info->rate_pitch_offset;
 	
+//	if( (imu_sensor.info->roll<=10)&&(imu_sensor.info->roll >=(-10)) )
+//	{
+//		imu_sensor.info->roll = -imu_sensor.info->roll ;
+//		imu_sensor.info->roll = imu_sensor.info->roll ;
+//		imu_sensor.info->roll = imu_sensor.info->roll ;
+//	}
+	
 	imu_info->offline_cnt = 0;
 }
 

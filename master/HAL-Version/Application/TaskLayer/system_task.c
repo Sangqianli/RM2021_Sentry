@@ -10,23 +10,18 @@
 #include "system_task.h"
 
 #include "cmsis_os.h"
-#include "rc_sensor.h"
+#include "device.h"
 
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Exported variables --------------------------------------------------------*/
-//flag_t flag = {
-//	.gimbal = {
-//		.reset_start = false,
-//		.reset_ok = false,
-//	},
-//};
 
 system_t sys = {
     .remote_mode = RC,
     .state = SYS_STATE_RCLOST,
+    .gimbal_now = MASTER, //默认遥控模式下控制的是下云台
     .auto_mode = AUTO_MODE_SCOUT,
     .switch_state.SYS_RESET = false,
     .switch_state.REMOTE_SWITCH = false,
@@ -41,14 +36,38 @@ system_t sys = {
 /* Private functions ---------------------------------------------------------*/
 static void Data_clear()
 {
-	sys.fire_state.FRICTION_OPEN = false;
-	sys.fire_state.FIRE_OPEN = false;
-	sys.predict_state.PREDICT_OPEN = false;
+    sys.fire_state.FRICTION_OPEN = false;
+    sys.fire_state.FIRE_OPEN = false;
+    sys.predict_state.PREDICT_OPEN = false;
+    sys.auto_mode = AUTO_MODE_SCOUT;
+	sys.gimbal_now = MASTER;
 	
+	Mode_Data = 0;
+
+    Chassis_process.init_flag = false;
+    Chassis_process.Mode = CHASSIS_NORMAL;
+    Chassis_process.Safe = CHASSIS_SAFE;
+	Chassis_process.Fire = FIRE_ALL;
+	Chassis_process.Spot_taget = 0;
+	
+	Gimbal_process.Scout_direction = 1;
+
     pid_clear(&Gimbal_process.YAW_PPM);
     pid_clear(&Gimbal_process.YAW_PVM);
     pid_clear(&Gimbal_process.PITCH_PPM);
     pid_clear(&Gimbal_process.PITCH_PVM);
+    pid2_clear(&Gimbal_process.PITCH2_PVM);
+	
+	pid_clear(&Chassis_process.PPM);
+	pid_clear(&Chassis_process.PVM);	
+	
+    motor[GIMBAL_YAW].info->angle_sum = 0;
+    motor[GIMBAL_PITCH].info->angle_sum = 0;
+
+    Gimbal_process.Yaw_taget = 0;
+    Gimbal_process.Pitch_taget = 0;
+
+    Chassis_process.Trip_times = 0;
 }
 /**
  *	@brief	通过遥控器更新系统信息(非正常状态下重置遥控信息)
@@ -59,13 +78,16 @@ static void rc_update_info(void)
 
     }
     else {
-        if( (rc_sensor.info->s2 == RC_SW_MID)||(rc_sensor.info->s2 == RC_SW_DOWN) )
+        if( rc_sensor.info->s2 == RC_SW_MID )
         {
             sys.remote_mode = RC;
         }
         else if(rc_sensor.info->s2 == RC_SW_UP)
         {
             sys.remote_mode = AUTO;
+        } else if(rc_sensor.info->s2 == RC_SW_DOWN)
+        {
+            sys.remote_mode = INSPECTION;
         }
     }
 }
@@ -75,13 +97,33 @@ static void rc_update_info(void)
  */
 static void system_ctrl_mode_switch(void)
 {
-    if( (rc_sensor.info->s2_switch_uptomid)||(rc_sensor.info->s2_siwtch_up) )
+    static uint16_t tum_cnt = 0;
+    if( (rc_sensor.info->s2_switch_uptomid)||(rc_sensor.info->s2_siwtch_up)||(rc_sensor.info->s2_switch_downtomid)||(rc_sensor.info->s2_siwtch_down) )
     {
         sys.switch_state.REMOTE_SWITCH = true;
         sys.switch_state.RESET_CAL = true;
         sys.switch_state.ALL_READY = false;
         rc_sensor.info->s2_switch_uptomid = false;
         rc_sensor.info->s2_siwtch_up = false;
+        rc_sensor.info->s2_switch_downtomid = false;
+        rc_sensor.info->s2_siwtch_down = false;
+
+        Data_clear();
+    }
+    if( abs(rc_sensor.info->thumbwheel) >=630 )
+    {
+        tum_cnt++;
+        if(tum_cnt > 100)
+        {
+            if(rc_sensor.info->thumbwheel >= 630)
+            {
+                sys.gimbal_now = MASTER;
+            } else if(rc_sensor.info->thumbwheel <= -630)
+            {
+                sys.gimbal_now = LEADER;
+            }
+            tum_cnt = 0;
+        }
     }
 }
 

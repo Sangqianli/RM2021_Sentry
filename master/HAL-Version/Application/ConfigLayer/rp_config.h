@@ -5,8 +5,10 @@
 #include "stm32f4xx_hal.h"
 #include "stdbool.h"
 #include "arm_math.h"
+#include "stdlib.h"
 /* Exported macro ------------------------------------------------------------*/
 /* 时间戳 */
+
 #define		TIME_STAMP_250MS	250
 #define 	TIME_STAMP_500MS	500
 #define    	TIME_STAMP_400MS    400
@@ -166,11 +168,26 @@ typedef struct pid_ctrl {
 	float 	out_max;
 } pid_ctrl_t;
 
+typedef struct pid2_ctrl {
+	float 	err;
+	float 	last_err;
+	float	kp;
+	float 	ki;
+	float 	kd;
+	float 	pout;
+	float 	iout;
+	float 	dout;
+	float 	out;
+	float	integral;
+	float 	integral_max;
+	float 	out_max;
+} pid2_ctrl_t;
 /* Remote Mode Enum */
 typedef enum {
-	RC = 0,
-	AUTO = 1,
-	REMOTE_MODE_CNT = 3,
+	RC = 0,          //遥控模式
+	AUTO = 1,        //自动模式
+	INSPECTION = 3,  //自检模式
+	REMOTE_MODE_CNT = 4,
 } remote_mode_t;
 
 typedef enum {
@@ -179,6 +196,11 @@ typedef enum {
 	SYS_STATE_RCERR,	// 遥控出错
 	SYS_STATE_WRONG,	// 其它系统错误
 } sys_state_t;
+
+typedef enum {
+	LEADER = 0,         //上云台控制（主要是打弹）
+	MASTER = 1,        //下云台控制
+} remote_gimbal_t;
 
 typedef enum {
 	AUTO_MODE_SCOUT,	// 侦察模式
@@ -194,7 +216,7 @@ typedef struct {
 }switch_state_t;
 
 typedef struct {
-	bool FRICTION_OPEN;      //开启摩擦轮
+	bool FRICTION_OPEN ;      //开启摩擦轮
 	bool FIRE_OPEN;          //开启拨盘
 } fire_state_t;
 
@@ -206,6 +228,7 @@ typedef struct{
 typedef struct {
 	remote_mode_t		remote_mode;	// 控制方式
 	sys_state_t			state;			// 系统状态
+	remote_gimbal_t     gimbal_now;    //当前云台
 	auto_mode_t			auto_mode;	    // 自瞄模式
 	switch_state_t      switch_state;   //各种转换状态
 	fire_state_t        fire_state;     //开火状态
@@ -216,6 +239,13 @@ typedef struct {
 extern system_t sys;
 
 /* Exported functions --------------------------------------------------------*/
+#define RP_SET_BIT(x,n)    (x | 1U<<(n-1))
+#define RP_CLEAR_BIT(x,n)    (x & ~(1U<<(n-1)))
+#define RP_SET_BITS(x,n,m)    (x | ~(~0U<<(m-n+1))<<(n-1)) 
+#define RP_GET_BIT(x,n,m)    (x & ~(~0U<<(m-n+1))<<(n-1)) >>(n-1)
+#define GETBITS_N_M(UA, BIT_M, BIT_N)   ( (UA & ~ (~ ((typeof (UA))0U) << (BIT_N - BIT_M + 1)) << BIT_M) >> BIT_M) //取出M到N位
+
+
 //以下为汇编函数
 void WFI_SET(void);		//执行WFI指令
 void INTX_DISABLE(void);//关闭所有中断

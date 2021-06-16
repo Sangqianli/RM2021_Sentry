@@ -243,14 +243,14 @@ void Loop(void)
             }
             if(Cruise_Mode)
             {
-                Chassis_task();
+//                Chassis_task();
                 Gimbal_task();
             }
             if(Check_Mode)
             {
 //				Chassis_Data();
             }
-            CAN2_Send(0x200,(int16_t)(Chassis.PID_PVM.output),(int16_t)(Launcher_Dial.PID_PVM.output),0x0000,0x0000);
+//            CAN2_Send(0x200,(int16_t)(Chassis.PID_PVM.output),(int16_t)(Launcher_Dial.PID_PVM.output),0x0000,0x0000);
 			CAN2_Send(0x2FF,(int16_t)(-Gimbal_pitch_PVM.PID_PVM.output),(int16_t)(Gimbal_yaw_PVM.PID_PVM.output),0x0000,0x0000);
  //           CAN2_Send(0x2FF,(int16_t)(-Gimbal_pitch_PVM.PID_PVM.output),0x0000,0x0000,0x0000);
         }

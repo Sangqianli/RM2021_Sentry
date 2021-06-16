@@ -11,6 +11,6 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 void USART1_rxDataHandler(uint8_t *rxBuf);
-	
+
 #endif
 

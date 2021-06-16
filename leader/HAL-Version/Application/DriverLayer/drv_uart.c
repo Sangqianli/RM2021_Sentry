@@ -8,7 +8,6 @@
  
 /* Includes ------------------------------------------------------------------*/
 #include "drv_uart.h"
-
 #include "string.h"
 
 extern UART_HandleTypeDef huart1;
@@ -19,11 +18,12 @@ extern UART_HandleTypeDef huart5;
 /* Private macro -------------------------------------------------------------*/
 #define USART2_RX_DATA_FRAME_LEN	(18u)	// 串口2数据帧长度
 #define USART2_RX_BUF_LEN			(USART2_RX_DATA_FRAME_LEN + 6u)	// 串口2接收缓冲区长度
-
+#define USART1_RX_BUF_LEN            50
 #define USART4_RX_BUF_LEN			100
 #define USART5_RX_BUF_LEN			200
 
 /* Private function prototypes -----------------------------------------------*/
+__WEAK void USART1_rxDataHandler(uint8_t *rxBuf);
 __WEAK void USART2_rxDataHandler(uint8_t *rxBuf);
 __WEAK void USART4_rxDataHandler(uint8_t *rxBuf);
 __WEAK void USART5_rxDataHandler(uint8_t *rxBuf);
@@ -39,6 +39,7 @@ static HAL_StatusTypeDef DMAEx_MultiBufferStart_NoIT(DMA_HandleTypeDef *hdma, \
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+uint8_t usart1_dma_rxbuf[USART1_RX_BUF_LEN];
 uint8_t usart2_dma_rxbuf[2][USART2_RX_BUF_LEN];
 uint8_t usart4_dma_rxbuf[USART4_RX_BUF_LEN];
 uint8_t usart5_dma_rxbuf[USART5_RX_BUF_LEN];
@@ -107,6 +108,16 @@ static void uart_rx_idle_callback(UART_HandleTypeDef* huart)
 		/* handle dbus data dbus_buf from DMA */
 		USART5_rxDataHandler(usart5_dma_rxbuf);
 		memset(usart5_dma_rxbuf, 0, USART5_RX_BUF_LEN);
+		/* restart dma transmission */	  
+		__HAL_DMA_ENABLE(huart->hdmarx);
+	}
+	else if (huart == &huart1)
+	{
+		/* clear DMA transfer complete flag */
+		__HAL_DMA_DISABLE(huart->hdmarx);
+		/* handle dbus data dbus_buf from DMA */
+		USART1_rxDataHandler(usart1_dma_rxbuf);
+		memset(usart1_dma_rxbuf, 0, USART1_RX_BUF_LEN);
 		/* restart dma transmission */	  
 		__HAL_DMA_ENABLE(huart->hdmarx);
 	}
@@ -328,8 +339,55 @@ void USART5_Init(void)
 			  (uint32_t)usart5_dma_rxbuf, \
 			  USART5_RX_BUF_LEN);
 }
+/**
+ *	@brief	USART5 Initialization
+ */
+void USART1_Init(void)
+{
+	__HAL_UART_CLEAR_IDLEFLAG(&huart1);
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+	
+	// Enable the DMA transfer for the receiver request
+	SET_BIT(huart1.Instance->CR3, USART_CR3_DMAR);	
+	
+	DMA_Start(huart1.hdmarx, \
+			  (uint32_t)&huart1.Instance->DR, \
+			  (uint32_t)usart1_dma_rxbuf, \
+			  USART1_RX_BUF_LEN);
+}
+
+
+/**
+ *	@brief	USART1 SendData
+ */
+void UART1_SendData(uint8_t *Data,uint16_t Size)
+{
+	HAL_UART_Transmit(&huart1,Data,Size,5);
+}
+
+/**
+ *	@brief	USART5 SendData
+ */
+void UART5_SendData(uint8_t *Data,uint16_t Size)
+{
+	HAL_UART_Transmit(&huart5,Data,Size,1);
+}
+
+void UART_SendData(drv_uart_t *drv,uint8_t *txData,uint16_t size)
+{
+	if(drv->type == DRV_UART1)
+		UART1_SendData( txData, size);
+	else if(drv->type == DRV_UART5)
+		UART5_SendData( txData, size);
+}
 
 /* rxData Handler [Weak] functions -------------------------------------------*/
+/**
+ *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART1 处理协议
+ */
+__WEAK void USART1_rxDataHandler(uint8_t *rxBuf)
+{	
+}
 /**
  *	@brief	[__WEAK] 需要在Potocol Layer中实现具体的 USART2 处理协议
  */

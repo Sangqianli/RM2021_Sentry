@@ -22,38 +22,57 @@
 /* Private functions ---------------------------------------------------------*/
 static void device_heart_beat(void)
 {
-	rc_sensor.heart_beat(&rc_sensor);
-	imu_sensor.heart_beat(&imu_sensor);
-	chassis_motor[CHAS_LF].heart_beat(&chassis_motor[CHAS_LF]);
-	chassis_motor[CHAS_RF].heart_beat(&chassis_motor[CHAS_RF]);
-	chassis_motor[CHAS_LB].heart_beat(&chassis_motor[CHAS_LB]);
-	chassis_motor[CHAS_RB].heart_beat(&chassis_motor[CHAS_RB]);
+    rc_sensor.heart_beat(&rc_sensor);
+    imu_sensor.heart_beat(&imu_sensor);
+    motor[CHASSIS].heart_beat(&motor[CHASSIS]);
+    motor[DIAL].heart_beat(&motor[DIAL]);
+    motor[GIMBAL_PITCH].heart_beat(&motor[GIMBAL_PITCH]);
+    motor[GIMBAL_YAW].heart_beat(&motor[GIMBAL_YAW]);
+    vision_sensor.heart_beat(&vision_sensor);
+    judge_sensor.heart_beat(&judge_sensor);
+    master_sensor.heart_beat(&master_sensor);
 }
 
 static void system_led_flash(void)
 {
-	static uint16_t led_blue_flash = 0;
-	
-	led_blue_flash++;
-	if(led_blue_flash > 500) 
-	{
-		led_blue_flash = 0;
-		LED_BLUE_TOGGLE();
-	}
+    static int16_t cnt=0;
+    static int16_t colour=1;
+    if(colour==1)
+    {
+        LED_ORANGE_ON();
+        LED_BLUE_OFF();
+    }
+    if(colour==(-1))
+    {
+        LED_ORANGE_OFF();
+        LED_BLUE_ON();
+    }
+    cnt++;
+    if(cnt>500)
+    {
+        cnt=0;
+        colour=(-colour);
+    }
 }
 
+static void device_get(void)
+{
+    imu_sensor.update(&imu_sensor);
+    path_sensor.update(&path_sensor);
+    path_sensor.check(&path_sensor);
+    Update_Gimbal_Angle_Queue(motor[GIMBAL_YAW].info->angle_sum);//更新云台队列
+}
 /* Exported functions --------------------------------------------------------*/
 /**
  *	@brief	系统监控任务
  */
 void StartMonitorTask(void const * argument)
 {
-	//LED_RED_ON();
-	for(;;)
-	{
-		system_led_flash();
-		device_heart_beat();
-		imu_sensor.update(&imu_sensor);
-		osDelay(1);
-	}
+    for(;;)
+    {
+        system_led_flash();
+        device_heart_beat();
+        device_get();
+        osDelay(1);
+    }
 }

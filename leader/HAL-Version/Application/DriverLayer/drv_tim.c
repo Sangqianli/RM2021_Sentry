@@ -31,8 +31,8 @@ void PWM_Init(void)
 
 void ENCODER_Init(void)
 {
-	HAL_TIM_Encoder_Start(&htim1,TIM_CHANNEL_3);
-	HAL_TIM_Encoder_Start(&htim1,TIM_CHANNEL_4);	
+	HAL_TIM_Encoder_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIM_Encoder_Start(&htim1,TIM_CHANNEL_2);	
 }
 
 void FRICTION_PwmOut(int16_t pwm1, int16_t pwm2)

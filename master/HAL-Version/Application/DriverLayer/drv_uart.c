@@ -362,7 +362,7 @@ void USART1_Init(void)
  */
 void UART1_SendData(uint8_t *Data,uint16_t Size)
 {
-	HAL_UART_Transmit(&huart1,Data,Size,1);
+	HAL_UART_Transmit(&huart1,Data,Size,5);
 }
 
 /**

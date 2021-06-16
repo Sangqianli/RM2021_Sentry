@@ -12,6 +12,7 @@ typedef struct path_info_struct {
 	int16_t		mileage_now;
 	int16_t		mileage_prev;
 	int32_t		mileage_total;
+	int32_t     mileage_dif;
 	bool		left_touch;
 	bool		right_touch;	
 	int16_t		offline_cnt;

@@ -28,8 +28,8 @@ void Gimbal_Init()
  //   Gimbal_yaw_PPM.position_round=0;//yaw位置环
 	
     Gimbal_yaw_PVM.PID_PVM.target=0;
-    Gimbal_yaw_PVM.PID_PVM.kp=14;//水平14，垂直3.2
-    Gimbal_yaw_PVM.PID_PVM.ki=0.6;//水平0.6，垂直0.3
+    Gimbal_yaw_PVM.PID_PVM.kp=14;//水平14，垂直3
+    Gimbal_yaw_PVM.PID_PVM.ki=0.6;//水平0.6，垂直0.2
     Gimbal_yaw_PVM.PID_PVM.kd=0;
     Gimbal_yaw_PVM.PID_PVM.IntegralLimit=26000;
     Gimbal_yaw_PVM.PID_PVM.MaxOutput=28000;

@@ -19,10 +19,14 @@
 dev_list_t dev_list = {
 	.rc_sen = &rc_sensor,
 	.imu_sen = &imu_sensor,
-	.chas_mtr[CHAS_LF] = &chassis_motor[CHAS_LF],
-	.chas_mtr[CHAS_RF] = &chassis_motor[CHAS_RF],
-	.chas_mtr[CHAS_LB] = &chassis_motor[CHAS_LB],
-	.chas_mtr[CHAS_RB] = &chassis_motor[CHAS_RB],
+	.path_sen = &path_sensor,
+	.motor[CHASSIS] = &motor[CHASSIS],
+	.motor[DIAL] = &motor[DIAL],
+	.motor[GIMBAL_PITCH] = &motor[GIMBAL_PITCH],
+	.motor[GIMBAL_YAW] = &motor[GIMBAL_YAW],
+	.vision_sen = &vision_sensor,
+	.judge_sen = &judge_sensor,
+	.master_sen = &master_sensor,
 };
 
 /* Private functions ---------------------------------------------------------*/
@@ -30,9 +34,13 @@ dev_list_t dev_list = {
 void DEV_Init(void)
 {
 	dev_list.rc_sen->init(dev_list.rc_sen);
-	dev_list.imu_sen->init(dev_list.imu_sen);
-	dev_list.chas_mtr[CHAS_LF]->init(dev_list.chas_mtr[CHAS_LF]);
-	dev_list.chas_mtr[CHAS_RF]->init(dev_list.chas_mtr[CHAS_RF]);
-	dev_list.chas_mtr[CHAS_LB]->init(dev_list.chas_mtr[CHAS_LB]);
-	dev_list.chas_mtr[CHAS_RB]->init(dev_list.chas_mtr[CHAS_RB]);
+//	dev_list.imu_sen->init(dev_list.imu_sen);
+	dev_list.path_sen->init(dev_list.path_sen);
+	dev_list.motor[CHASSIS]->init(dev_list.motor[CHASSIS]);
+	dev_list.motor[DIAL]->init(dev_list.motor[DIAL]);
+	dev_list.motor[GIMBAL_PITCH]->init(dev_list.motor[GIMBAL_PITCH]);
+	dev_list.motor[GIMBAL_YAW]->init(dev_list.motor[GIMBAL_YAW]);
+	dev_list.vision_sen->init(dev_list.vision_sen);
+	dev_list.judge_sen->init(dev_list.judge_sen);	
+	dev_list.master_sen->init(dev_list.master_sen);
 }

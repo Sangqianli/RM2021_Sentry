@@ -32,6 +32,7 @@
 /* USER CODE BEGIN Includes */
 #include "driver.h"
 #include "device.h"
+#include "system_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,6 +110,8 @@ int main(void)
 	DRIVER_Init();
 	// 设备层初始化
 	DEV_Init();
+	//应用层初始化
+	Application_Init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

@@ -11,7 +11,7 @@
 
 #include "bmi.h"
 
-#include "imu_sensor.h"
+
 
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -53,11 +53,11 @@ void imu_sensor_init(imu_sensor_t *imu_sen)
     }
     //imu_init_errno = rslt;
     
-	for(uint16_t i=0; i<250; i++) {
-		BMI_Get_GRO(&imu_info->rate_pitch, &imu_info->rate_roll, &imu_info->rate_yaw);
-		imu_info->rate_pitch_offset += imu_info->rate_pitch;
-		imu_info->rate_yaw_offset += imu_info->rate_yaw;
-	}
+//	for(uint16_t i=0; i<250; i++) {
+//		BMI_Get_GRO(&imu_info->rate_pitch, &imu_info->rate_roll, &imu_info->rate_yaw);
+//		imu_info->rate_pitch_offset += imu_info->rate_pitch;
+//		imu_info->rate_yaw_offset += imu_info->rate_yaw;
+//	}
     /**
         @note
         如果上电的时候云台运动，会导致计算出来的静态偏差数值出错。如果每次上电的时候，静态偏差均

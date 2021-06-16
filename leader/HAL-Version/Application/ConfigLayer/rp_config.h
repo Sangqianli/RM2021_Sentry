@@ -5,6 +5,7 @@
 #include "stm32f4xx_hal.h"
 #include "stdbool.h"
 #include "arm_math.h"
+#include "stdlib.h"
 /* Exported macro ------------------------------------------------------------*/
 /* 时间戳 */
 #define		TIME_STAMP_250MS	250
@@ -25,6 +26,7 @@ typedef enum drv_type{
 	DRV_PWM_FRIC_R,
 	DRV_PWM_SERVO,
 	DRV_IIC,
+	DRV_ENCODER_AND_IOIN,
 	DRV_UART1,
 	DRV_UART2,
 	DRV_UART3,
@@ -67,8 +69,15 @@ typedef struct drv_pwm {
  */
 typedef struct drv_uart {
 	enum drv_type	type;
-	void			(*tx_byte)(struct drv_uart *self, uint8_t byte);
+	void			(*tx_byte)(struct drv_uart *self, uint8_t *byte,uint16_t size);
 } drv_uart_t;
+/**
+ *	@brief	TIM+IO驱动(其实没有用)
+ *	@class	driver
+ */
+typedef struct drv_path {
+	enum drv_type 	type;	
+} drv_path_t;
 
 /* 设备层 --------------------------------------------------------------------*/
 /**
@@ -78,24 +87,27 @@ typedef struct drv_uart {
 typedef enum {
 	DEV_ID_RC = 0,
 	DEV_ID_IMU = 1,
-	DEV_ID_CHASSIS_LF = 2,
-	DEV_ID_CHASSIS_RF = 3,
-	DEV_ID_CHASSIS_LB = 4,
-	DEV_ID_CHASSIS_RB = 5,
-	DEV_ID_CNT = 6,
+	DEV_ID_CHASSIS = 2,
+	DEV_ID_DIAL = 3,
+	DEV_ID_GIMBAL_PITCH = 4,
+	DEV_ID_GIMBAL_YAW = 5,
+	DEV_ID_ENCODER_AND_TOUCH = 6,
+	DEV_ID_VISION = 7,
+	DEV_ID_JUDJE = 8,
+	DEV_ID_CNT = 9,
 } dev_id_t;
 
 /**
- *	@brief	底盘电机设备索引
+ *	@brief	电机设备索引
  *	@class	device
  */
 typedef enum {
-	CHAS_LF,
-	CHAS_RF,
-	CHAS_LB,
-	CHAS_RB,
-	CHAS_MOTOR_CNT,
-} chassis_motor_cnt_t;
+	CHASSIS,
+	DIAL,
+	GIMBAL_PITCH,
+	GIMBAL_YAW,
+	MOTOR_CNT,
+} motor_cnt_t;
 
 /**
  *	@brief	设备工作状态
@@ -157,9 +169,10 @@ typedef struct pid_ctrl {
 
 /* Remote Mode Enum */
 typedef enum {
-	RC = 0,
-	KEY = 1,
-	REMOTE_MODE_CNT = 2,
+	RC = 0,          //遥控模式
+	AUTO = 1,        //自动模式
+	INSPECTION = 3,  //自检模式
+	REMOTE_MODE_CNT = 4,
 } remote_mode_t;
 
 typedef enum {
@@ -170,27 +183,46 @@ typedef enum {
 } sys_state_t;
 
 typedef enum {
-	SYS_MODE_NORMAL,	// 常规模式
-	SYS_MODE_CNT,
-} sys_mode_t;
+	AUTO_MODE_SCOUT,	// 侦察模式
+	AUTO_MODE_ATTACK,   //打击模式
+} auto_mode_t;
 
-//typedef struct {
-//	struct {
-//		uint8_t reset_start;
-//		uint8_t reset_ok;
-//	}gimbal;
-//} flag_t;
+typedef struct {
+	bool  SYS_RESET;
+	bool  REMOTE_SWITCH;
+	bool  AUTO_MODE_SWITCH;
+	bool  RESET_CAL;
+	bool  ALL_READY;
+}switch_state_t;
+
+typedef struct {
+	bool FRICTION_OPEN;      //开启摩擦轮
+	bool FIRE_OPEN;          //开启拨盘
+} fire_state_t;
+
+typedef struct{
+	bool PREDICT_OPEN;       //预测开启，有关数据处理
+	bool PREDICT_ACTION;     //预测作用，有关云台底盘运动
+} predict_state_t;
 
 typedef struct {
 	remote_mode_t		remote_mode;	// 控制方式
 	sys_state_t			state;			// 系统状态
-	sys_mode_t			mode;			// 系统模式
+	auto_mode_t			auto_mode;	    // 自瞄模式
+	switch_state_t      switch_state;   //各种转换状态
+	fire_state_t        fire_state;     //开火状态
+	predict_state_t     predict_state;  //预测状态
 } system_t;
 
 //extern flag_t	flag;
 extern system_t sys;
 
 /* Exported functions --------------------------------------------------------*/
+#define RP_SET_BIT(x,n)    (x | 1U<<(n-1))
+#define RP_CLEAR_BIT(x,n)    (x & ~(1U<<(n-1)))
+#define RP_SET_BITS(x,n,m)    (x | ~(~0U<<(m-n+1))<<(n-1)) 
+#define RP_GET_BIT(x,n,m)    (x & ~(~0U<<(m-n+1))<<(n-1)) >>(n-1)
+#define GETBITS_M_N(UA, BIT_M, BIT_N)   ( (UA & ~ (~ (0U) << (BIT_N - BIT_M + 1)) << BIT_M) >> BIT_M) //取出M到N位
 //以下为汇编函数
 void WFI_SET(void);		//执行WFI指令
 void INTX_DISABLE(void);//关闭所有中断

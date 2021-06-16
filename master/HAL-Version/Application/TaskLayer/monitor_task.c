@@ -29,6 +29,8 @@ static void device_heart_beat(void)
     motor[GIMBAL_PITCH].heart_beat(&motor[GIMBAL_PITCH]);
     motor[GIMBAL_YAW].heart_beat(&motor[GIMBAL_YAW]);
     vision_sensor.heart_beat(&vision_sensor);
+    judge_sensor.heart_beat(&judge_sensor);
+    leader_sensor.heart_beat(&leader_sensor);
 }
 
 static void system_led_flash(void)

@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,__CC_ARM,ARM_MATH_CM4,__TARGET_FPU_VFP,__FPU_PRESENT=1U</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;       ../Drivers/STM32F4xx_HAL_Driver/Inc;       ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;       ../Middlewares/Third_Party/FreeRTOS/Source/include;       ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;       ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;       ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;       ../Drivers/CMSIS/Include;       ..\Application\DriverLayer;       ..\Application\DeviceLayer\Imu;       ..\Application\DeviceLayer\Motor;       ..\Application\DeviceLayer\Sensor;       ..\Application\DeviceLayer;       ..\Application\ModuleLayer;       ..\Application\TaskLayer;       ..\Application\AlgorithmLayer;       ..\Application\ConfigLayer;       ..\Application\PotocolLayer;       ..\Drivers\CMSIS\DSP\Include;       ..\Application\DeviceLayer\path;       ..\Application\DeviceLayer\vision</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\Application\DriverLayer;..\Application\DeviceLayer\Imu;..\Application\DeviceLayer\Motor;..\Application\DeviceLayer\Sensor;..\Application\DeviceLayer;..\Application\ModuleLayer;..\Application\TaskLayer;..\Application\AlgorithmLayer;..\Application\ConfigLayer;..\Application\PotocolLayer;..\Drivers\CMSIS\DSP\Include;..\Application\DeviceLayer\path;..\Application\DeviceLayer\vision;..\Application\DeviceLayer\judge</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -503,6 +503,11 @@
               <FileType>1</FileType>
               <FilePath>..\Application\DeviceLayer\vision\vision_sensor.c</FilePath>
             </File>
+            <File>
+              <FileName>judge_sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\DeviceLayer\judge\judge_sensor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -522,14 +527,14 @@
               <FilePath>..\Application\TaskLayer\monitor_task.c</FilePath>
             </File>
             <File>
-              <FileName>control_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Application\TaskLayer\control_task.c</FilePath>
-            </File>
-            <File>
               <FileName>chassis_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Application\TaskLayer\chassis_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>control_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\TaskLayer\control_task.c</FilePath>
             </File>
             <File>
               <FileName>gimbal_task.c</FileName>
@@ -537,14 +542,14 @@
               <FilePath>..\Application\TaskLayer\gimbal_task.c</FilePath>
             </File>
             <File>
-              <FileName>fire_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Application\TaskLayer\fire_task.c</FilePath>
-            </File>
-            <File>
               <FileName>vision_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Application\TaskLayer\vision_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>fire_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\TaskLayer\fire_task.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -565,11 +570,6 @@
               <FileName>kalman.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Application\AlgorithmLayer\kalman.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/main.c</FilePath>
             </File>
             <File>
               <FileName>kalman_filter.c</FileName>
@@ -616,11 +616,21 @@
               <FileType>1</FileType>
               <FilePath>..\Application\PotocolLayer\vision_potocol.c</FilePath>
             </File>
+            <File>
+              <FileName>judge_potocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application\PotocolLayer\judge_potocol.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/main.c</FilePath>
+            </File>
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>

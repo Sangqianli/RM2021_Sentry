@@ -25,6 +25,8 @@ dev_list_t dev_list = {
 	.motor[GIMBAL_PITCH] = &motor[GIMBAL_PITCH],
 	.motor[GIMBAL_YAW] = &motor[GIMBAL_YAW],
 	.vision_sen = &vision_sensor,
+	.judge_sen = &judge_sensor,
+	.leader_sen = &leader_sensor,	
 };
 
 /* Private functions ---------------------------------------------------------*/
@@ -39,4 +41,6 @@ void DEV_Init(void)
 	dev_list.motor[GIMBAL_PITCH]->init(dev_list.motor[GIMBAL_PITCH]);
 	dev_list.motor[GIMBAL_YAW]->init(dev_list.motor[GIMBAL_YAW]);
 	dev_list.vision_sen->init(dev_list.vision_sen);
+	dev_list.judge_sen->init(dev_list.judge_sen);	
+	dev_list.leader_sen->init(dev_list.leader_sen);	
 }

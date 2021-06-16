@@ -5,11 +5,11 @@
 #include "rp_config.h"
 
 /* Exported macro ------------------------------------------------------------*/
+#define LEADER_DATA_ID  0x1FFU
 #define CHASSIS_CAN_ID	0x201U
 #define DIAL_CAN_ID	    0x202U
 #define GIMBAL_CAN_ID_PITCH	0x209U
 #define GIMBAL_CAN_ID_YAW	0x20AU
-//#define GIMBAL_CAN_ID_YAW	0x209U
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/

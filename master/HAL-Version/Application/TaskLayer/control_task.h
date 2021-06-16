@@ -9,6 +9,7 @@
 extern int16_t NormalData_0x200[4];
 extern int16_t NormalData_0x2FF[4];
 extern int16_t NormalPwm[2];
+extern int16_t Mode_Data;
 /* Exported functions --------------------------------------------------------*/
 
 #endif

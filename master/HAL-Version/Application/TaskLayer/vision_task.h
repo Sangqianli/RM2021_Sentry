@@ -7,6 +7,7 @@
 #include "system_task.h"
 
 /* Exported macro ------------------------------------------------------------*/
+#define ANTI_DISTANDCE 8.f
 /* Exported types ------------------------------------------------------------*/
 typedef struct
 {
@@ -33,6 +34,8 @@ typedef struct {
     float distend_get;
     float offset_yaw;
     float offset_pitch;
+    bool  gyro_anti;
+    bool  gyro_judge;
 } Vision_process_t;
 
 extern Vision_process_t Vision_process;

@@ -91,6 +91,8 @@ void CAN2_Send(uint32_t Equipment_ID,int16_t Data0,int16_t Data1,int16_t Data2,i
 
 uint32_t temp;
 int i;
+
+int16_t pitch_current;
 void CAN2_RX0_IRQHandler(void)
 {
 
@@ -176,6 +178,9 @@ void CAN2_RX0_IRQHandler(void)
             Gimbal_pitch_PVM.speed_get=RxMessage.Data[2];
             Gimbal_pitch_PVM.speed_get=Gimbal_pitch_PVM.speed_get<<8;
             Gimbal_pitch_PVM.speed_get=Gimbal_pitch_PVM.speed_get|RxMessage.Data[3];
+			
+			pitch_current =( (int16_t) (RxMessage.Data[4]<<8) |  RxMessage.Data[5]);
+			
             break;
         default:
             break;

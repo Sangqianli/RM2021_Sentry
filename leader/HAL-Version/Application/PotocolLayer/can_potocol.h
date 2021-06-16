@@ -5,14 +5,17 @@
 #include "rp_config.h"
 
 /* Exported macro ------------------------------------------------------------*/
-#define CHASSIS_CAN_ID_LF	0x205U
-#define CHASSIS_CAN_ID_RF	0x206U
-#define CHASSIS_CAN_ID_LB	0x207U
-#define CHASSIS_CAN_ID_RB	0x208U
+#define SHOOT_DATA_ID   0x2ffU
+#define MASTER_MODE_ID  0x200U
+#define CHASSIS_CAN_ID	0x201U
+#define DIAL_CAN_ID	    0x207U
+#define GIMBAL_CAN_ID_PITCH	0x205U
+#define GIMBAL_CAN_ID_YAW	0x206U
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-void	CAN_SendSingleData(drv_can_t *drv, int16_t txData);
-void 	CAN_SendDataBuff(drv_type_t drv_type, uint32_t std_id, int16_t *txBuff);
+void CAN_SendSingleData(drv_can_t *drv, int16_t txData);
+void CAN1_SendDataBuff( uint32_t std_id, int16_t *txBuff);
+void CAN2_SendDataBuff( uint32_t std_id, int16_t *txBuff);
 
 #endif

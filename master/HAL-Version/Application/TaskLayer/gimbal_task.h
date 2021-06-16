@@ -16,14 +16,18 @@ typedef struct
     bool is_queue_full ; 	/*队列满标志*/
 } Record_queue;
 /* Exported types ------------------------------------------------------------*/
+#define PITCH_UP_LINE    510
+#define PITCH_DOWN_LINE  -720
 typedef struct Gimbal {
     pid_ctrl_t   YAW_PPM;
     pid_ctrl_t	 YAW_PVM;
     pid_ctrl_t   PITCH_PPM;
+	pid2_ctrl_t  PITCH2_PVM;
     pid_ctrl_t	 PITCH_PVM;
     float        Yaw_taget;
     float        Pitch_taget;
     float        RealYaw_speed;
+    int8_t       Scout_direction; //-1向后侦察，1向前侦察
     Record_queue Gimbal_queue;
 } Gimbal_t;
 /* Exported functions --------------------------------------------------------*/

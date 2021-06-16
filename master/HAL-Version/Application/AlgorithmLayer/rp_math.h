@@ -28,7 +28,7 @@ typedef struct
 #define abs(x) 					((x)>0? (x):(-(x)))
 
 int16_t RampInt(int16_t final, int16_t now, int16_t ramp);
-float RampFloat(float final, float now, float ramp);
+float RampFloat(float step,float target,float current);
 float DeathZoom(float input, float center, float death);
 float Get_Diff(uint8_t queue_len, QueueObj *Data,float add_data);
 void Clear_Queue(QueueObj* queue);

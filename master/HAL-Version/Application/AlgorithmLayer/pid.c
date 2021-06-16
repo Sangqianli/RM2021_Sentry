@@ -23,9 +23,6 @@ void pid_calculate(pid_ctrl_t *pid)
 	pid->err = pid->target-pid->measure;
 	// p i d 输出项计算
 	pid->pout = pid->kp * pid->err;
-	pid->integral += pid->err;
-//	pid->integral = constrain(pid->integral, -pid->integral_max, +pid->integral_max);
-//	pid->iout = pid->ki * pid->integral;
 	pid->iout += (pid->ki * pid->err);
 	pid->iout = constrain(pid->iout, -pid->integral_max, +pid->integral_max);
     pid->dout = pid->kd * (pid->err - pid->last_err);
@@ -36,6 +33,19 @@ void pid_calculate(pid_ctrl_t *pid)
 	pid->last_err = pid->err;
 }
 
+void pid2_calculate(pid2_ctrl_t *pid)
+{
+	// p i d 输出项计算
+	pid->pout = pid->kp * pid->err;
+	pid->iout += (pid->ki * pid->err);
+	pid->iout = constrain(pid->iout, -pid->integral_max, +pid->integral_max);
+    pid->dout = pid->kd * (pid->err - pid->last_err);
+	// 累加pid输出值
+	pid->out = pid->pout + pid->iout + pid->dout;
+	pid->out = constrain(pid->out, -pid->out_max, pid->out_max);
+	// 记录上次误差值
+	pid->last_err = pid->err;
+}
 void pid_clear(pid_ctrl_t *pid)
 {
 	pid->err = 0;
@@ -47,3 +57,13 @@ void pid_clear(pid_ctrl_t *pid)
 	pid->out = 0;
 }
 
+void pid2_clear(pid2_ctrl_t *pid)
+{
+	pid->err = 0;
+	pid->last_err = 0;
+	pid->integral = 0;
+	pid->pout = 0;
+	pid->iout = 0;
+	pid->dout = 0;
+	pid->out = 0;
+}

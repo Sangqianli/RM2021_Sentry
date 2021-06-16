@@ -53,6 +53,12 @@ rc_sensor_t	rc_sensor = {
 static void rc_sensor_check(rc_sensor_t *rc_sen)
 {
 	rc_sensor_info_t *rc_info = rc_sen->info;
+	if(!rc_info->init_flag)
+	{
+		rc_info->init_flag = true;
+		rc_info->s1_pre=rc_info->s1;
+		rc_info->s2_pre=rc_info->s2;				
+	}
 	
 	if(abs(rc_info->ch0) > 660 ||
 	   abs(rc_info->ch1) > 660 ||
@@ -72,6 +78,56 @@ static void rc_sensor_check(rc_sensor_t *rc_sen)
 	{
 		rc_sen->errno = NONE_ERR;
 	}
+/*用完记得清0*/	
+	if(rc_info->s1_pre!=rc_info->s1)//s1切换记录
+	{
+		switch (rc_info->s1)
+		{
+			case RC_SW_UP:		
+				if(rc_info->s1_pre==RC_SW_MID)
+					rc_info->s1_siwtch_up=true;
+				break;
+			case RC_SW_MID:
+				if(rc_info->s1_pre==RC_SW_UP)
+					rc_info->s1_switch_uptomid=true;
+				if(rc_info->s1_pre==RC_SW_DOWN)
+					rc_info->s1_switch_downtomid=true;	
+				break;
+			case RC_SW_DOWN:
+				if(rc_info->s1_pre==RC_SW_MID)
+					rc_info->s1_siwtch_down=true;				
+				break;
+			default:
+				rc_sen->errno = DEV_DATA_ERR;
+				break;
+		}	
+	}
+		if(rc_info->s2_pre!=rc_info->s2)//s2切换记录
+	{
+		switch (rc_info->s2)
+		{
+			case RC_SW_UP:		
+				if(rc_info->s2_pre==RC_SW_MID)
+					rc_info->s2_siwtch_up=true;
+				break;
+			case RC_SW_MID:
+				if(rc_info->s2_pre==RC_SW_UP)
+					rc_info->s2_switch_uptomid=true;
+				if(rc_info->s2_pre==RC_SW_DOWN)
+					rc_info->s2_switch_downtomid=true;	
+				break;
+			case RC_SW_DOWN:
+				if(rc_info->s2_pre==RC_SW_MID)
+					rc_info->s2_siwtch_down=true;				
+				break;
+			default:
+				rc_sen->errno = DEV_DATA_ERR;
+				break;	
+		}	
+	}
+/****************/	
+	rc_info->s1_pre=rc_info->s1;
+	rc_info->s2_pre=rc_info->s2;	//记录上次的值	
 }
 
 /**
@@ -85,6 +141,7 @@ static void rc_sensor_heart_beat(rc_sensor_t *rc_sen)
 	if(rc_info->offline_cnt > rc_info->offline_max_cnt) {
 		rc_info->offline_cnt = rc_info->offline_max_cnt;
 		rc_sen->work_state = DEV_OFFLINE;
+        rc_info->init_flag = false;//需要重新初始化		
 	} 
 	else {
 		/* 离线->在线 */

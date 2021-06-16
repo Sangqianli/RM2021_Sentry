@@ -12,10 +12,10 @@
 #include "cmsis_os.h"
 
 /* Private macro -------------------------------------------------------------*/
-#define ACTIVE_MAX_CNT  2
-#define LOST_MAX_CNT    10	/*对于识别和丢失判定的阈值*/
-#define CONVER_SCALE_YAW    21.1f//20.86
-#define CONVER_SCALE_PITCH  22.9f
+#define ACTIVE_MAX_CNT  1
+#define LOST_MAX_CNT    2	/*对于识别和丢失判定的阈值*/
+#define CONVER_SCALE_YAW    22.463f//20.86
+#define CONVER_SCALE_PITCH  22.26f//22.9
 /* Private function prototypes -----------------------------------------------*/
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -23,13 +23,14 @@ float vision_mach_yaw,vision_mach_pitch,vision_dis_meter;//视觉数据转换
 
 extKalman_t kalman_visionYaw,kalman_targetYaw,kalman_visionPitch,kalman_targetPitch,kalman_visionDistance,kalman_targetDistance;
 extKalman_t kalman_accel,kalman_speedYaw;
-float visionYaw_R=1,targetYaw_R=2000,visionPitch_R=0.5,targetPitch_R=3000,visionDis_R=1,targetDis_R=1000;//0.2,2000,0.5,3000
-float predictAccel_R=100,speedYaw_R=400;//400,1200
+float visionYaw_R=0,targetYaw_R=400,visionPitch_R=0,targetPitch_R=100,visionDis_R=0,targetDis_R=100;//1,1000,1,1000
+float predictAccel_R=10,speedYaw_R=200;//1 , 200
 
 uint8_t Vision_SentData[60];//发送给视觉的数组
 
 float YawTarget_now,PitchTarget_now;//实际视觉给定角度
 float update_cloud_yaw = 0,update_cloud_pitch=0;	/*记录视觉更新数据时的云台数据，给下次接收用*/
+float lastupdate_cloud_yaw = 0,lastupdate_cloud_pitch=0; /*前两帧的数据*/
 /* Exported variables --------------------------------------------------------*/
 Vision_process_t Vision_process;
 /* Private functions ---------------------------------------------------------*/
@@ -37,21 +38,40 @@ static void Sent_to_Vision_Version2_1()
 {
     static uint8_t Sent_cnt=0;//发送间隔
     static uint32_t now_time;
-    uint8_t *time;
-    now_time=xTaskGetTickCount();
-    time=(uint8_t*)&now_time;
+    static uint8_t  colour;
+	uint8_t *yw,*pw;//电机角度指针
+	static float Yaw_raw,Pitch_raw;
+	Yaw_raw=((Gimbal_process.YAW_PPM.measure)/8191)*360;
+    Pitch_raw=((Gimbal_process.PITCH_PPM.measure)/8191)*360;//电机角度转换
+//    uint8_t *time;
+//    now_time=xTaskGetTickCount();
+//    time=(uint8_t*)&now_time;
+
+    if(judge_sensor.info->GameRobotStatus.robot_id == 7)//红色id
+        colour = 1;
+    else if(judge_sensor.info->GameRobotStatus.robot_id == 107)//蓝色id
+        colour = 0;
 
     Append_CRC8_Check_Sum(Vision_SentData, 3);
     Append_CRC16_Check_Sum(Vision_SentData,22);
 
-    Vision_SentData[0]=0xA5;
-    Vision_SentData[1]=1;
+    Vision_SentData[0] = 0xA5;
+    Vision_SentData[1] = 0;
     /*小端发送，高字节是高位*/
-    Vision_SentData[3]= *time;
-    Vision_SentData[4]=*(time+1);
-    Vision_SentData[5]=*(time+2);
-    Vision_SentData[6]=*(time+3);//时间数据
+    Vision_SentData[3] = colour;//颜色识别，1是蓝色，0是红色
+    Vision_SentData[4] = 0;//1反陀螺，0关反陀螺
 
+    /*小端发送，高字节是高位*/
+    Vision_SentData[5]= *yw;
+    Vision_SentData[6]=*(yw+1);
+    Vision_SentData[7]=*(yw+2);
+    Vision_SentData[8]=*(yw+3);//Yaw轴角度数据
+
+    Vision_SentData[9]= *pw;
+    Vision_SentData[10]=*(pw+1);
+    Vision_SentData[11]=*(pw+2);
+    Vision_SentData[12]=*(pw+3);//Pitch轴角度数据	
+	
     Sent_cnt++;
     if(Sent_cnt>=100)
     {
@@ -60,18 +80,61 @@ static void Sent_to_Vision_Version2_1()
     }
 }
 
+static void Offset_Angle_Get()
+{
+    if(Vision_process.data_kal.DistanceGet_KF > 1.25f && Vision_process.data_kal.DistanceGet_KF <= 3.25f)
+        Vision_process.offset_pitch = 1.6;
+    else if(Vision_process.data_kal.DistanceGet_KF > 3.25f && Vision_process.data_kal.DistanceGet_KF <= 4.25f)
+        Vision_process.offset_pitch = 1.83;
+    else if(Vision_process.data_kal.DistanceGet_KF > 4.25f && Vision_process.data_kal.DistanceGet_KF <= 5.25f)
+        Vision_process.offset_pitch = 2.4f;
+    else if(Vision_process.data_kal.DistanceGet_KF > 5.25f && Vision_process.data_kal.DistanceGet_KF <= 6.f)
+        Vision_process.offset_pitch = 2.6;
+    else
+        Vision_process.offset_pitch = 0;
+
+    Vision_process.offset_yaw = 0.2;//0.8
+}
+
+static void Offset_Angle_Get_2_1()
+{
+//    if(Vision_process.data_kal.DistanceGet_KF > 0.3f && Vision_process.data_kal.DistanceGet_KF <= 3.5f)
+//        Vision_process.offset_pitch = 0.7954f * Vision_process.data_kal.DistanceGet_KF - 0.1428f - 1.5f;
+//    else if(Vision_process.data_kal.DistanceGet_KF > 3.5f && Vision_process.data_kal.DistanceGet_KF <= 7.f)// <= 6.25f
+//        Vision_process.offset_pitch = 0.1827f * Vision_process.data_kal.DistanceGet_KF + 2.0095f -1.5f;//最后一个是手动补偿1.3
+//    else
+//        Vision_process.offset_pitch = 0;
+
+//    Vision_process.offset_yaw = -0.5;//0.6
+	
+	    Vision_process.offset_yaw = 0;
+	  Vision_process.offset_pitch = 0;
+}
+
 static void Vision_Normal()
 {
     static uint16_t active_cnt=0,lost_cnt=0;/*激活计数/丢失计数--用于识别和未识别到相互切换的过程*/
+    static int16_t  Record_Auto_Mode = AUTO_MODE_SCOUT;
+	static int32_t pitch_temp;//用于判断目标角度是否超出pitch限位，超出则不进入自瞄
+
+    Offset_Angle_Get_2_1();//根据距离获取补偿角
+	
+
     if(vision_sensor.info->State.rx_data_update)//数据更新
-    {
-        if(vision_sensor.info->RxPacket.RxData.identify_target == 1)//识别到目标
+    {		
+		 pitch_temp = lastupdate_cloud_pitch + (vision_sensor.info->RxPacket.RxData.pitch_angle + Vision_process.offset_pitch) * CONVER_SCALE_PITCH;	//先算出pitch机械角度
+        if(Record_Auto_Mode != sys.auto_mode)
+        {
+            sys.switch_state.AUTO_MODE_SWITCH = true;
+        }
+        Record_Auto_Mode = sys.auto_mode;
+
+        if( (vision_sensor.info->RxPacket.RxData.identify_target == 1 ) && ( (vision_dis_meter>0.3f) && (vision_dis_meter < ANTI_DISTANDCE) ) )// &&( (pitch_temp <= (PITCH_UP_LINE+10))||(pitch_temp >= (PITCH_UP_LINE-10)) )
         {
             active_cnt++; 	/*活跃计数*/
             if(active_cnt >= ACTIVE_MAX_CNT) /*达到阈值，认定为识别到*/
             {
                 sys.auto_mode = AUTO_MODE_ATTACK;
-                sys.switch_state.AUTO_MODE_SWITCH = true;
                 active_cnt = 0;
                 lost_cnt = 0;
                 /*重新确认进来的判断*/
@@ -83,7 +146,6 @@ static void Vision_Normal()
             if(lost_cnt >= LOST_MAX_CNT) /*达到阈值，认定为丢失*/
             {
                 sys.auto_mode = AUTO_MODE_SCOUT;
-                sys.switch_state.AUTO_MODE_SWITCH = true;
                 active_cnt = 0;
                 lost_cnt = 0;
                 /*侦察模式的切换*/
@@ -91,76 +153,191 @@ static void Vision_Normal()
                 Clear_Queue(&Vision_process.accel_queue);
                 Clear_Queue(&Vision_process.dis_queue);
                 /*清除队列信息，防止下一次数据受到影响*/
+                Vision_process.data_kal.DistanceGet_KF = 0;//正确更新距离
+                Vision_process.feedforwaurd_angle = 0;
                 Vision_process.predict_angle = 0;//清0预测角
-                sys.predict_state.PREDICT_OPEN = false;			/*关闭预测*/
+                sys.predict_state.PREDICT_OPEN = false;			/*关闭预测*/						
             }
         }
 
-        vision_sensor.info->RxPacket.RxData.yaw_angle = DeathZoom(vision_sensor.info->RxPacket.RxData.yaw_angle,0,0.2);
-        vision_sensor.info->RxPacket.RxData.pitch_angle = DeathZoom(vision_sensor.info->RxPacket.RxData.pitch_angle,0,0.1);
+        if(vision_sensor.info->RxPacket.RxData.anti_gyro == 1)
+        {
+//            Vision_process.gyro_anti = true;
+			Vision_process.gyro_anti = false;
+        }
+        else
+        {
+            Vision_process.gyro_anti = false;
+//            Vision_process.gyro_judge = true;  //下次再进入反陀螺时的判定
+        }
 
-        vision_mach_yaw = vision_sensor.info->RxPacket.RxData.yaw_angle*CONVER_SCALE_YAW;
-        vision_mach_pitch = vision_sensor.info->RxPacket.RxData.pitch_angle*CONVER_SCALE_PITCH;		//转换成机械角度
-        vision_dis_meter =  vision_sensor.info->RxPacket.RxData.distance/1000.f;
+        if(Vision_process.gyro_anti == false) //没有陀螺的时候进行常规给定
+        {
+            vision_mach_yaw = (vision_sensor.info->RxPacket.RxData.yaw_angle + Vision_process.offset_yaw) * CONVER_SCALE_YAW;
+            vision_mach_pitch = (vision_sensor.info->RxPacket.RxData.pitch_angle + Vision_process.offset_pitch) * CONVER_SCALE_PITCH;		//加上补偿角，转换成机械角度
+            vision_dis_meter =  vision_sensor.info->RxPacket.RxData.distance/1000.f;
 
-        vision_mach_yaw  = 	DeathZoom(vision_mach_yaw,0,6);
-        vision_mach_pitch=  DeathZoom(vision_mach_pitch,0,3);
-
+//            vision_mach_yaw  = 	DeathZoom(vision_mach_yaw,0,0.1);
+//            vision_mach_pitch=  DeathZoom(vision_mach_pitch,0,0.1);
+        }
         Vision_process.data_kal.YawGet_KF = KalmanFilter(&kalman_visionYaw,vision_mach_yaw); 	/*对视觉角度数据做卡尔曼滤波*/
         Vision_process.data_kal.PitchGet_KF = KalmanFilter(&kalman_visionPitch,vision_mach_pitch);
-        if(vision_dis_meter>0.0001f)
+        if( (vision_dis_meter>0.3f) && (vision_dis_meter<10.f) )
             Vision_process.data_kal.DistanceGet_KF =KalmanFilter(&kalman_visionDistance,vision_dis_meter);
 
-        YawTarget_now=update_cloud_yaw+Vision_process.data_kal.YawGet_KF;
-        PitchTarget_now=update_cloud_pitch+Vision_process.data_kal.PitchGet_KF;
+        YawTarget_now=lastupdate_cloud_yaw+Vision_process.data_kal.YawGet_KF;
+        PitchTarget_now=lastupdate_cloud_pitch+Vision_process.data_kal.PitchGet_KF;
 
-        update_cloud_yaw=motor[GIMBAL_YAW].info->angle_sum;/*视觉数据更新时的云台角度*/
-        update_cloud_pitch=motor[GIMBAL_PITCH].info->angle_sum;
+        lastupdate_cloud_yaw = update_cloud_yaw;
+        lastupdate_cloud_pitch = update_cloud_pitch;      /*记录前2帧的数据*/
+        update_cloud_yaw = Gimbal_process.YAW_PPM.measure;/*视觉数据更新时的云台角度*/
+        update_cloud_pitch = Gimbal_process.PITCH_PPM.measure;
 
         /*视觉数据推演.......................................*/
-        Vision_process.speed_get = Get_Diff(20,&Vision_process.speed_queue,YawTarget_now);
+        Vision_process.speed_get = Get_Diff(5,&Vision_process.speed_queue,YawTarget_now);//20
         Vision_process.speed_get = KalmanFilter(&kalman_speedYaw,Vision_process.speed_get);
-        Vision_process.speed_get = DeathZoom(Vision_process.speed_get,0,0.3);
+//      Vision_process.speed_get = DeathZoom(Vision_process.speed_get,0,1);
+		Vision_process.speed_get = constrain(Vision_process.speed_get , -40 , 40);
 
-        Vision_process.accel_get = Get_Diff(10,&Vision_process.accel_queue,Vision_process.speed_get);	 /*新版获取加速度*/
-        Vision_process.accel_get = DeathZoom(Vision_process.accel_get,0,0.1);		/*死区处理 - 滤除0点附近的噪声*/
+        Vision_process.accel_get = Get_Diff(5,&Vision_process.accel_queue,Vision_process.speed_get);	 /*新版获取加速度10*/
         Vision_process.accel_get = KalmanFilter(&kalman_accel,Vision_process.accel_get);
-
-        Vision_process.distend_get =  Get_Diff(10,&Vision_process.dis_queue,Vision_process.data_kal.DistanceGet_KF);
-        Vision_process.distend_get =  DeathZoom(Vision_process.distend_get,0,0.1);
+//      Vision_process.accel_get = DeathZoom(Vision_process.accel_get,0,0.1);		/*死区处理 - 滤除0点附近的噪声*/
+		Vision_process.accel_get = constrain(Vision_process.accel_get , -40 , 40);
+		
+        Vision_process.distend_get =  Get_Diff(5,&Vision_process.dis_queue,Vision_process.data_kal.DistanceGet_KF);
+        Vision_process.distend_get =  DeathZoom(Vision_process.distend_get,0,0.01);
         /*......................................................*/
         vision_sensor.info->State.rx_data_update = false;
-
     }
-
-    /*直接跟随给定.................................*/
-//	    Vision_process.data_kal.YawTarget_KF=KalmanFilter(&kalman_targetYaw,YawTarget_now);
-//	    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,PitchTarget_now);
-    /*..................................................*/
 }
 
 static void Vision_Pridict()
 {
     static float acc_use = 1.f;
-    static float predic_use = 1.f;
+    static float predic_use = 4.6f;//4.6 1.2
     float dir_factor;
     if( (Vision_process.speed_get * Vision_process.accel_get)>=0 )
     {
-        dir_factor= 1.f;
+        dir_factor= 1.f;//1
     }
     else
     {
-        dir_factor= 1.8f;
+        dir_factor= 1.5f;//1.5
     }
 
     Vision_process.feedforwaurd_angle = acc_use * Vision_process.accel_get; 	/*计算前馈角*/
 
-    Vision_process.predict_angle = (0.8f*Vision_process.speed_get*Vision_process.data_kal.DistanceGet_KF+2.2f*dir_factor*Vision_process.feedforwaurd_angle) ;	/*计算预测角度*/
+    Vision_process.predict_angle = predic_use * (1.f*Vision_process.speed_get*Vision_process.data_kal.DistanceGet_KF+2.f*dir_factor*Vision_process.feedforwaurd_angle*Vision_process.data_kal.DistanceGet_KF) ;//速度1.1，加速度3
+	Vision_process.predict_angle = constrain(Vision_process.predict_angle , -200 , 200);
+}
+static void AntiNormal()
+{
+    /*直接跟随给定.................................*/
+//	    Vision_process.data_kal.YawTarget_KF=KalmanFilter(&kalman_targetYaw,YawTarget_now);
+//	    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,PitchTarget_now);
+    /*..................................................*/
 
-    Vision_process.data_kal.YawTarget_KF=YawTarget_now+Vision_process.predict_angle*predic_use;
+    Vision_process.data_kal.YawTarget_KF=YawTarget_now+Vision_process.predict_angle;
     Vision_process.data_kal.YawTarget_KF=KalmanFilter(&kalman_targetYaw,Vision_process.data_kal.YawTarget_KF);
-    Vision_process.data_kal.PitchTarget_KF=PitchTarget_now+600*Vision_process.distend_get;
-    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,Vision_process.data_kal.PitchTarget_KF);
+//    Vision_process.data_kal.PitchTarget_KF=PitchTarget_now+10*Vision_process.distend_get;                               //在这里给pitch轴预测的系数
+//    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,Vision_process.data_kal.PitchTarget_KF);
+    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,PitchTarget_now);//不给预测
+}
+static void AntiGyro()
+{
+//    static float anti_yaw, anti_pitch, record_yaw, record_pitch;
+//    static bool judge_flag = true;
+//    anti_yaw = (vision_sensor.info->RxPacket.RxData.yaw_angle + Vision_process.offset_yaw) * CONVER_SCALE_YAW;
+//    anti_pitch = (vision_sensor.info->RxPacket.RxData.pitch_angle + Vision_process.offset_pitch) * CONVER_SCALE_PITCH;
+
+//    if(judge_flag)
+//    {
+//        Vision_process.data_kal.YawTarget_KF = anti_yaw + update_cloud_yaw;
+//        Vision_process.data_kal.PitchTarget_KF = anti_pitch + update_cloud_pitch;
+//        Clear_Queue(&Vision_process.speed_queue);
+//        Clear_Queue(&Vision_process.accel_queue);
+//        Clear_Queue(&Vision_process.dis_queue);
+//        judge_flag = false;
+//    }
+//    if( (abs(record_yaw-anti_yaw)<0.1f) && (abs(record_pitch-anti_pitch)<0.1f) )
+//    {
+//        judge_flag = false;
+//    } else
+//    {
+//        judge_flag = true;
+//    }
+
+//    record_yaw = anti_yaw;
+//    record_pitch = anti_pitch;
+    /*直接跟随给定.................................*/
+    Vision_process.data_kal.YawTarget_KF=KalmanFilter(&kalman_targetYaw,YawTarget_now);
+	Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,PitchTarget_now);
+    /*..................................................*/
+    Vision_process.data_kal.YawTarget_KF=KalmanFilter(&kalman_targetYaw,Vision_process.data_kal.YawTarget_KF);
+    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,PitchTarget_now);//不给预测	
+}
+
+static void Anti_Target()
+{
+    if(Vision_process.gyro_anti)
+        AntiGyro();
+    else  
+        AntiNormal();
+}
+
+/**
+* @brief 雷达站信息处理及给定
+* @param void
+* @return void
+*/
+static void Vision_Radar()
+{
+    static uint16_t active_cnt=0,lost_cnt=0;/*激活计数/丢失计数--用于识别和未识别到相互切换的过程*/
+    if( judge_sensor.info->RadarData.identify_target == 1 )
+    {
+        active_cnt++; 	/*活跃计数*/
+        if(active_cnt >= ACTIVE_MAX_CNT) /*达到阈值，认定为识别到*/
+        {
+            sys.auto_mode = AUTO_MODE_ATTACK;
+            active_cnt = 0;
+            lost_cnt = 0;
+            /*重新确认进来的判断*/
+        }
+    }
+    else
+    {
+        lost_cnt++;
+        if(lost_cnt >= LOST_MAX_CNT) /*达到阈值，认定为丢失*/
+        {
+            sys.auto_mode = AUTO_MODE_SCOUT;
+            active_cnt = 0;
+            lost_cnt = 0;
+            /*侦察模式的切换*/
+            /*清除队列信息，防止下一次数据受到影响*/
+            Vision_process.data_kal.DistanceGet_KF = 0;//正确更新距离
+            Vision_process.feedforwaurd_angle = 0;
+            Vision_process.predict_angle = 0;//清0预测角
+            sys.predict_state.PREDICT_OPEN = false;			/*关闭预测*/
+        }
+    }
+    vision_mach_yaw = (judge_sensor.info->RadarData.yaw_angle + 0) * CONVER_SCALE_YAW;
+    vision_mach_pitch = (judge_sensor.info->RadarData.pitch_angle + 0) * CONVER_SCALE_PITCH;		//加上补偿角，转换成机械角度
+    vision_dis_meter =  judge_sensor.info->RadarData.distance/1000.f;
+
+    vision_mach_yaw  = 	DeathZoom(vision_mach_yaw,0,4);
+    vision_mach_pitch=  DeathZoom(vision_mach_pitch,0,2);
+
+    Vision_process.data_kal.YawGet_KF = KalmanFilter(&kalman_visionYaw,vision_mach_yaw); 	/*对视觉角度数据做卡尔曼滤波*/
+    Vision_process.data_kal.PitchGet_KF = KalmanFilter(&kalman_visionPitch,vision_mach_pitch);
+
+    YawTarget_now=update_cloud_yaw+Vision_process.data_kal.YawGet_KF;
+    PitchTarget_now=update_cloud_pitch+Vision_process.data_kal.PitchGet_KF;
+
+    update_cloud_yaw = Gimbal_process.YAW_PPM.measure;/*视觉数据更新时的云台角度*/
+    update_cloud_pitch = Gimbal_process.PITCH_PPM.measure;
+
+    Vision_process.data_kal.YawTarget_KF=KalmanFilter(&kalman_targetYaw,YawTarget_now);
+    Vision_process.data_kal.PitchTarget_KF=KalmanFilter(&kalman_targetPitch,PitchTarget_now);
 }
 /* Exported functions --------------------------------------------------------*/
 void Vision_Init()
@@ -173,6 +350,11 @@ void Vision_Init()
     KalmanCreate(&kalman_targetDistance,1,targetDis_R);
     KalmanCreate(&kalman_accel,1,predictAccel_R);
     KalmanCreate(&kalman_speedYaw,1,speedYaw_R);
+
+    Vision_process.speed_queue.queueLength = 60;
+    Vision_process.accel_queue.queueLength = 60;
+    Vision_process.dis_queue.queueLength = 60;
+
 }
 
 void StartVisionTask(void const * argument)
@@ -186,6 +368,7 @@ void StartVisionTask(void const * argument)
             {
                 Vision_Pridict();
             }
+            Anti_Target();
             Sent_to_Vision_Version2_1();
         }
         osDelay(2);

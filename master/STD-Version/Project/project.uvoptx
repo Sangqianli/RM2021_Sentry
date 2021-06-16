@@ -240,6 +240,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>CmdID,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>17</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>CAN2_ID,0x0A</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

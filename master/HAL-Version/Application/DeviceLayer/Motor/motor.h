@@ -30,8 +30,34 @@ typedef struct motor_struct {
 	dev_id_t				id;
 } motor_t;
 
+
+
+typedef __packed struct
+{
+    uint8_t attack_now : 1;
+	uint8_t is_hero : 1;
+	uint8_t others :6;
+}leader_mode_t;
+typedef struct leader_info_struct
+{
+	leader_mode_t data;
+	uint8_t temporary_data;
+	uint8_t		init_flag;
+	uint8_t		offline_cnt;
+	uint8_t		offline_max_cnt;		
+}leader_info_t;
+
+typedef struct leader_struct{
+	leader_info_t *info;
+	void					(*init)(struct  leader_struct *self);
+	void					(*update)(struct  leader_struct *self, uint8_t *rxBuf);	
+	void					(*heart_beat)(struct  leader_struct *self);
+	dev_work_state_t		work_state;
+}leader_t;
+
 extern motor_t	motor[MOTOR_CNT];
 
+extern leader_t leader_sensor;
 /* Exported functions --------------------------------------------------------*/
 
 
