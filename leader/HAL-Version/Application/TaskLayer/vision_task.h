@@ -7,7 +7,7 @@
 #include "system_task.h"
 
 /* Exported macro ------------------------------------------------------------*/
-#define ANTI_DISTANDCE 12.f
+#define ANTI_DISTANDCE 10.f
 /* Exported types ------------------------------------------------------------*/
 typedef struct
 {

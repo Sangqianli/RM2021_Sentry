@@ -263,10 +263,11 @@ typedef struct
     bool	 hurt_data_update;	// 伤害数据更新
     bool	dart_data_update;	// 飞镖数据更新
     bool	supply_data_update;	// 补给站数据更新
+	bool    command_data_update;//小地图数据更新
     std_frame_header_t				FrameHeader;				// 帧头信息
     ext_game_status_t 				GameStatus;					// 0x0001
     ext_game_result_t 				GameResult;					// 0x0002
-    ext_game_robot_HP_t 			GameRobotHP;				// 0x0003
+    ext_game_robot_HP_t 			GameRobotHP;		 		// 0x0003
     ext_dart_status_t				DartStatus;					// 0x0004
     //ext_ICRA_buff_debuff_zone_status_t
 

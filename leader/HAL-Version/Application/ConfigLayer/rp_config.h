@@ -91,10 +91,12 @@ typedef enum {
 	DEV_ID_DIAL = 3,
 	DEV_ID_GIMBAL_PITCH = 4,
 	DEV_ID_GIMBAL_YAW = 5,
-	DEV_ID_ENCODER_AND_TOUCH = 6,
-	DEV_ID_VISION = 7,
-	DEV_ID_JUDJE = 8,
-	DEV_ID_CNT = 9,
+		DEV_ID_FIRE_LEFT = 6,
+	DEV_ID_FIRE_RIGHT = 7,
+	DEV_ID_ENCODER_AND_TOUCH = 8,
+	DEV_ID_VISION = 9,
+	DEV_ID_JUDJE = 10,
+	DEV_ID_CNT = 11,
 } dev_id_t;
 
 /**
@@ -106,6 +108,8 @@ typedef enum {
 	DIAL,
 	GIMBAL_PITCH,
 	GIMBAL_YAW,
+	FIRE_LEFT,
+	FIRE_RIGHT,
 	MOTOR_CNT,
 } motor_cnt_t;
 

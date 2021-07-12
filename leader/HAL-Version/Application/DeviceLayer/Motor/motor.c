@@ -52,7 +52,7 @@ drv_can_t		motor_driver[] = {
 		.tx_data = CAN_SendSingleData,
 	},
 	[GIMBAL_YAW] = {
-		.type = DRV_CAN2,
+		.type = DRV_CAN1,
 		.can_id = GIMBAL_CAN_ID_YAW,
 //		.std_id = RM3508_GetStdId,
 //		.drv_id = RM3508_GetDrvId,

@@ -17,6 +17,7 @@ typedef struct Fire {
     int16_t    Friction_target;
 } Fire_t;
 /* Exported functions --------------------------------------------------------*/
+bool Fire_Key_info(void);
 void Fire_Init(void);
 void StartFireTask(void const * argument);
 #endif

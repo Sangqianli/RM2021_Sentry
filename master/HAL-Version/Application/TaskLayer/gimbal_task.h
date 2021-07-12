@@ -22,7 +22,7 @@ typedef struct Gimbal {
     pid_ctrl_t   YAW_PPM;
     pid_ctrl_t	 YAW_PVM;
     pid_ctrl_t   PITCH_PPM;
-	pid2_ctrl_t  PITCH2_PVM;
+    pid2_ctrl_t  PITCH2_PVM;
     pid_ctrl_t	 PITCH_PVM;
     float        Yaw_taget;
     float        Pitch_taget;

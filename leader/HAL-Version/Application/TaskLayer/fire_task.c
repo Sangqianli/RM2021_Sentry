@@ -379,11 +379,12 @@ static void Fire_Judge2_1()
             if( (sys.auto_mode == AUTO_MODE_ATTACK)  //还有&&(Vision_process.speed_get * Vision_process.data_kal.YawGet_KF <= 0)
 //				    &&(Vision_process.speed_get * Vision_process.data_kal.YawGet_KF <= 0)//超前判断
 
-                    &&( (abs(Vision_process.predict_angle)<10) ||  Is_Yaw_Now() )     //旧版还有这个(abs(motor[GIMBAL_YAW].info->angle_sum - Vision_process.data_kal.YawGet_KF) <= abs(Real_Speed*Fly_time))||
-                    &&( (abs(Vision_process.data_kal.PitchGet_KF)<=12) || (Vision_process.gyro_anti) )
+                    &&( (abs(Vision_process.predict_angle)<20) ||  Is_Yaw_Now() )     //旧版还有这个(abs(motor[GIMBAL_YAW].info->angle_sum - Vision_process.data_kal.YawGet_KF) <= abs(Real_Speed*Fly_time))||
+                    &&( (abs(Vision_process.data_kal.PitchGet_KF)<=10) || (Vision_process.gyro_anti) )
                     && ((sys.predict_state.PREDICT_OPEN) || (Vision_process.gyro_anti) )
                     && (vision_sensor.work_state == DEV_ONLINE)
-                    && (Fire_process.Friction_ready)			)
+                    && (Fire_process.Friction_ready)	
+					&&	(master_sensor.info->modes.fire_stop == 0) )
             {
                 sys.fire_state.FIRE_OPEN=true;
                 Fire_cnt=0;
@@ -408,19 +409,21 @@ void Dial_Auto()
 
     if( sys.fire_state.FIRE_OPEN == true && (Fire_process.Stuck_flag == false) )
     {
-        if( (abs(Vision_process.predict_angle)<5)||(judge_sensor.info->GameRobotStatus.remain_HP <= HP_Danger) )
+        if( (abs(Vision_process.predict_angle)<10)||(judge_sensor.info->GameRobotStatus.remain_HP <= HP_Danger) )
         {
 //            Fire_process.Speed_target = SHOOT_FREQ_HIGH; //比较静止的时候高射频
-            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
+//            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
 //            Fire_process.Speed_target = SHOOT_FREQ_MID;
+			 Fire_process.Speed_target = SHOOT_FREQ_ONE;
         }
 
         else
         {
-            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
+//            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
 //            Fire_process.Speed_target = SHOOT_FREQ_HIGH;
 //            Fire_process.Speed_target = SHOOT_FREQ_MID;
 //			Fire_process.Speed_target = SHOOT_FREQ_TWELVE;
+			 Fire_process.Speed_target = SHOOT_FREQ_ONE;
         }
 
         if(master_sensor.info->cooling_heat > 280)

@@ -13,7 +13,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 #define SCOUT_PITCH_SPEED  6
-#define SCOUT_YAW_SPEED    2	/*侦察速度4,1:1*/
+#define SCOUT_YAW_SPEED    3	/*侦察速度4,1:1*/
 #define SCOUT_YAW_TRUN_TIMES 4U //前后侦察切换次数（往返）
 #define SCOUT_FRONT   1U   //修改前后侦察时用到，作用于修改往返次数，跟上面切换次数有关
 #define SCOUT_BACK    4U
@@ -30,7 +30,7 @@
 #define SCOUT_PITCH_UP_ANGLE     500
 #define SCOUT_PITCH_DOWN_ANGLE  -650	/*侦察pitch轴角度上下边界*/
 
-#define ATTACK_RAMP              50    //切换到打击模式下的斜坡参数30
+#define ATTACK_RAMP              30    //切换到打击模式下的斜坡参数30
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private typedef -----------------------------------------------------------*/
@@ -119,8 +119,8 @@ static void Gimbal_control()
     Gimbal_process.PITCH_PPM.target = Gimbal_process.Pitch_taget;
     pid_calculate(&Gimbal_process.YAW_PPM);
     pid_calculate(&Gimbal_process.PITCH_PPM);
-	
-	Gimbal_process.PITCH_PVM.target = KalmanFilter(&Pitch_PPM_p,Gimbal_process.PITCH_PPM.out);
+
+    Gimbal_process.PITCH_PVM.target = KalmanFilter(&Pitch_PPM_p,Gimbal_process.PITCH_PPM.out);
 
     Gimbal_process.YAW_PVM.target = Gimbal_process.YAW_PPM.out;
 //    Gimbal_process.PITCH_PVM.target = Gimbal_process.PITCH_PPM.out;
@@ -137,15 +137,15 @@ static void Gimbal2_control()
     Gimbal_process.PITCH_PPM.target = Gimbal_process.Pitch_taget;
     pid_calculate(&Gimbal_process.YAW_PPM);
     pid_calculate(&Gimbal_process.PITCH_PPM);
-	
+
     Gimbal_process.YAW_PVM.target = Gimbal_process.YAW_PPM.out;
     Gimbal_process.PITCH_PVM.target = Gimbal_process.PITCH_PPM.out;
 
-	pid_calculate(&Gimbal_process.PITCH_PVM);
-	
-	Gimbal_process.PITCH2_PVM.err = Gimbal_process.PITCH_PVM.err;
+    pid_calculate(&Gimbal_process.PITCH_PVM);
+
+    Gimbal_process.PITCH2_PVM.err = Gimbal_process.PITCH_PVM.err;
     Gimbal_process.PITCH_PVM.err = KalmanFilter(&Pitch_PPM_p,Gimbal_process.PITCH_PVM.err);
-	
+
     pid2_calculate(&Gimbal_process.PITCH2_PVM);
     pid_calculate(&Gimbal_process.YAW_PVM);
 
@@ -184,6 +184,30 @@ static bool  Hurt_back()
 }
 
 /**
+* @brief 云台手向后扫描信息
+* @param void
+* @return void
+*提供检测发送按键来判定是否向后扫描
+*返回true表示向后，返回flase表示不干涉
+*/
+static bool Scan_Key_info()
+{
+    static	bool	result = false;
+    static uint8_t	key_now	, key_pre;
+    key_now	=	judge_sensor.info->command.commd_keyboard;
+
+    if(	(key_now	!=	key_pre)&&(key_now	==	KEYBOARD_BACK_SCAN)	)
+    {
+        if(result == false)
+            result	= true;
+        else
+            result	= false;
+    }
+    key_pre	= key_now;
+    return	result;
+}
+
+/**
 * @brief 获取侦察模式的侦察方向
 * @param void
 * @return void
@@ -200,7 +224,7 @@ static void  Get_scout_direction()
 //        Gimbal_process.Scout_direction = 1;
 //    }//向前侦察
 
-    if( Hurt_back() )
+    if( Hurt_back() || Scan_Key_info() )
     {
         Gimbal_process.Scout_direction = -1;
     }//向后巡航
@@ -339,11 +363,11 @@ static  void Scout_2_2()
             {
                 Gimbal_process.Yaw_taget = SCOUT_YAW_RIGHT_BACK_ANGLE;
                 yaw_dir = 1;
-            }			
+            }
             if(Gimbal_process.YAW_PPM.target >= SCOUT_YAW_RIGHT_FRONT_ANGLE )
             {
                 Gimbal_process.Yaw_taget = SCOUT_YAW_LEFT_BACK_ANGLE; //直接转
-            }			
+            }
         } else
         {
             if(Gimbal_process.YAW_PPM.target <= SCOUT_YAW_RIGHT_FRONT_ANGLE)
@@ -369,7 +393,7 @@ static  void Scout_2_2()
                 Gimbal_process.Yaw_taget = SCOUT_YAW_LEFT_FRONT_ANGLE;
                 yaw_dir = 0;
             }
-			
+
             if(Gimbal_process.YAW_PPM.target <= SCOUT_YAW_LEFT_BACK_ANGLE)
             {
                 Gimbal_process.Yaw_taget = SCOUT_YAW_RIGHT_FRONT_ANGLE;  //直接转
@@ -659,17 +683,17 @@ void Gimbal_Init()
     Gimbal_process.PITCH_PVM.integral_max=26000;
     Gimbal_process.PITCH_PVM.out_max=28000;
     Gimbal_process.PITCH_PVM.out=0;//pitch速度环
-	
+
     Gimbal_process.PITCH2_PVM.kp=12;//12  18
     Gimbal_process.PITCH2_PVM.ki=0.6;//0.3 0.3
     Gimbal_process.PITCH2_PVM.kd=0;
     Gimbal_process.PITCH2_PVM.integral_max=26000;
     Gimbal_process.PITCH2_PVM.out_max=28000;
-    Gimbal_process.PITCH2_PVM.out=0;//pitch速度环	
+    Gimbal_process.PITCH2_PVM.out=0;//pitch速度环
 }
 
 void StartGimbalTask(void const * argument)
-{ 
+{
     for(;;)
     {
         if(sys.state == SYS_STATE_NORMAL)
@@ -695,7 +719,7 @@ void StartGimbalTask(void const * argument)
                 Gimbal_reset();
             }
 //            Gimbal_control();
-			Gimbal2_control();
+            Gimbal2_control();
         }
         osDelay(2);
     }

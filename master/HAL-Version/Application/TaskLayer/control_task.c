@@ -75,7 +75,16 @@ static void Control_Leader()
             {
                 Mode_Data =RP_CLEAR_BIT(Mode_Data,6);
             }
-			 Mode_Data =RP_CLEAR_BIT(Mode_Data,7);	//拨盘位清空，拨盘位只用于遥控控制上云台打弹	
+            Mode_Data =RP_CLEAR_BIT(Mode_Data,7);	//拨盘位清空，拨盘位只用于遥控控制上云台打弹
+
+            if( Fire_Key_info() )
+            {
+                Mode_Data =RP_SET_BIT(Mode_Data,8);
+            }
+            else
+            {
+                Mode_Data =RP_CLEAR_BIT(Mode_Data,8);
+            }
         }
     }
     else

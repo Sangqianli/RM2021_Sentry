@@ -40,13 +40,13 @@ static void Friction_Control()
     {
 //        if(judge_sensor.info->GameStatus.game_progress == 4) //比赛开始后再开摩擦轮
 //        {
-            sys.fire_state.FRICTION_OPEN = true;
-            friction_cnt ++;
-            if( friction_cnt > 2000)
-            {
         sys.fire_state.FRICTION_OPEN = true;
-        Fire_process.Friction_ready = true;
-            }//摩擦轮解锁4s后再解锁拨盘
+        friction_cnt ++;
+        if( friction_cnt > 2000)
+        {
+            sys.fire_state.FRICTION_OPEN = true;
+            Fire_process.Friction_ready = true;
+        }//摩擦轮解锁4s后再解锁拨盘
 //        }
 //        else
 //        {
@@ -156,7 +156,7 @@ static void  Dial_Remote_Continue()
     static int32_t reverse_cnt=0;
     if( sys.fire_state.FIRE_OPEN == true && (Fire_process.Stuck_flag == false) )
     {
-		Fire_process.Speed_target = SHOOT_FREQ_ONE;		
+        Fire_process.Speed_target = SHOOT_FREQ_ONE;
 //        Fire_process.Speed_target = SHOOT_FREQ_LOW;
 //        Fire_process.Speed_target = SHOOT_FREQ_MID;
 //		Fire_process.Speed_target = SHOOT_FREQ_HIGH;
@@ -187,6 +187,34 @@ static void  Dial_Remote_Continue()
         }
     }
 }
+
+/**
+* @brief 云台手打弹信息
+* @param void
+* @return void
+*提供检测发送按键来判定是否开火，主要用于防止对面工程骗弹
+*返回true表示停火，返回flase表示开火
+*/
+bool Fire_Key_info()
+{
+    static	bool	result = false;
+    static uint8_t	key_now	, key_pre;
+    key_now	=	judge_sensor.info->command.commd_keyboard;
+
+    if(	(key_now	!=	key_pre)&&(key_now	==	KEYBOARD_STOP_FIRE)	)
+    {
+        if(result == false)
+            result	= true;
+        else
+            result	= false;
+    }
+    key_pre	= key_now;
+    return	result;
+}
+
+
+
+
 /**
 * @brief 开火判断决策
 * @param void
@@ -280,8 +308,8 @@ static bool Is_Yaw_Now()
     else
         deadok = false;
 
-//    if( (abs(Vision_process.data_kal.YawGet_KF) <= yaw_width)&&(abs(Gimbal_process.YAW_PPM.err) <= dead_width) )
-	if( (abs(Vision_process.data_kal.YawGet_KF) <= yaw_width) )
+    if( (abs(Vision_process.data_kal.YawGet_KF) <= yaw_width)&&(abs(Gimbal_process.YAW_PPM.err) <= dead_width) )
+//	if( (abs(Vision_process.data_kal.YawGet_KF) <= yaw_width) )
 //	if(abs(Gimbal_process.YAW_PPM.err) <= dead_width)
     {
         allok = true;
@@ -375,10 +403,11 @@ static void Fire_Judge2_1()
 
                     &&( (abs(Vision_process.predict_angle)<20) ||  Is_Yaw_Now() )     //旧版还有这个(abs(motor[GIMBAL_YAW].info->angle_sum - Vision_process.data_kal.YawGet_KF) <= abs(Real_Speed*Fly_time))||
                     &&( (abs(Vision_process.data_kal.PitchGet_KF)<=10) )
-                    && ((sys.predict_state.PREDICT_OPEN) || (Vision_process.gyro_anti) )
-                    && (vision_sensor.work_state == DEV_ONLINE)
-                    && (Chassis_process.init_flag)
-                    && (Fire_process.Friction_ready)			)
+                    &&( (sys.predict_state.PREDICT_OPEN) || (Vision_process.gyro_anti) )
+                    &&( vision_sensor.work_state == DEV_ONLINE)
+                    &&( Chassis_process.init_flag)
+                    &&( Fire_process.Friction_ready)
+                    &&( Fire_Key_info() == false ) )
             {
                 sys.fire_state.FIRE_OPEN=true;
                 Fire_cnt=0;
@@ -403,14 +432,14 @@ void Dial_Auto()
 
     if( sys.fire_state.FIRE_OPEN == true && (Fire_process.Stuck_flag == false) )
     {
-        if( (abs(Vision_process.predict_angle)<5)||(judge_sensor.info-> GameRobotStatus.remain_HP <= HP_Danger) )
+        if( abs(Vision_process.predict_angle)<10 )
         {
+            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
 //            Fire_process.Speed_target = SHOOT_FREQ_VERYHIGH;
-            Fire_process.Speed_target = SHOOT_FREQ_HIGH; //比较静止的时候高射频
-//			Fire_process.Speed_target = SHOOT_FREQ_ONE;
+//            Fire_process.Speed_target = SHOOT_FREQ_HIGH; //比较静止的时候高射频
+//			  Fire_process.Speed_target = SHOOT_FREQ_ONE;
 //            Fire_process.Speed_target = SHOOT_FREQ_MID;
         }
-
         else
         {
 //            Fire_process.Speed_target = SHOOT_FREQ_VERYHIGH;
@@ -466,14 +495,14 @@ static void Dail_text()
     if((sys.fire_state.FIRE_OPEN) && (sys.fire_state.FRICTION_OPEN) && (judge_sensor.info->GameRobotStatus.mains_power_shooter_output == 1) )
     {
 
-        NormalData_0x200[1] = (int16_t)Fire_process.PVM.out;		
+        NormalData_0x200[1] = (int16_t)Fire_process.PVM.out;
 //       NormalData_0x200[1] = 0;
     }
     else
     {
         Fire_process.Speed_target = 0;
         Fire_process.PVM.target = 0;
-        NormalData_0x200[1] = (int16_t)Fire_process.PVM.out;		
+        NormalData_0x200[1] = (int16_t)Fire_process.PVM.out;
 //        NormalData_0x200[1] = 0;
     }
 }

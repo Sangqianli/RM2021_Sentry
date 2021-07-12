@@ -25,8 +25,14 @@ typedef enum {
     CHASSIS_ESCAPE, //逃跑模式
 } chassis_mode_t;
 
+typedef enum {
+    WAY_NORMAL,	// 正常模式
+    WAY_TOUCH,   //开关模式
+    WAY_ENCODER,   //编码器模式
+} chassis_way_t;
+
 typedef struct Chassis {
-    pid_ctrl_t	 PPM;	
+    pid_ctrl_t	 PPM;
     pid_ctrl_t	 PVM;
     float        Speed_taget;
     int32_t		 Mileage_atrip;//轨道长度
@@ -38,11 +44,12 @@ typedef struct Chassis {
     bool         swerve_flag;//反弹流程标志位
     bool         overbuff_flag;//超缓冲能量标志位
     bool         getchange_flag;//获取轨道目标位置标志位
-	bool         static_want;//底盘目标静止
+    bool         static_want;//底盘目标静止
     int32_t      Spot_taget;//轨道目标位置
     chassis_mode_t  Mode ; //各种模式
     chassis_safe_mode_t Safe;
-	chassis_fire_t Fire;
+    chassis_fire_t Fire;
+    chassis_way_t Way;
 } Chassis_t;
 /* Exported functions --------------------------------------------------------*/
 extern Chassis_t Chassis_process;

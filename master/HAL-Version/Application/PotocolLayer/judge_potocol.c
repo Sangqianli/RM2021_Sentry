@@ -52,6 +52,7 @@ typedef enum {
     ID_RFID_STATUS					= 0x0209,	// 机器人RFID状态
 
     ID_COMMUNICATION				= 0x0301,	// 机器人间交互数据(发送方触发发送)
+    ID_COMMAND						= 0x0303,	// 机器人间交互数据(发送方触发发送)	
 } Judge_Cmd_ID_t;
 
 typedef enum {
@@ -224,8 +225,9 @@ void judge_update(uint8_t *rxBuf)
                 }
                 break;
 				
-				case 0x0303:{
+				case ID_COMMAND:{
 					memcpy(&judge_info->command, (rxBuf+DATA_SEG), 15);  //云台数据
+					judge_info->command_data_update = true;
 				}
                 }
             }

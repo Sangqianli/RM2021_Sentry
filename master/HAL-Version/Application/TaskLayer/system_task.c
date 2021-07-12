@@ -40,27 +40,27 @@ static void Data_clear()
     sys.fire_state.FIRE_OPEN = false;
     sys.predict_state.PREDICT_OPEN = false;
     sys.auto_mode = AUTO_MODE_SCOUT;
-	sys.gimbal_now = MASTER;
-	
-	Mode_Data = 0;
+    sys.gimbal_now = MASTER;
+
+    Mode_Data = 0;
 
     Chassis_process.init_flag = false;
     Chassis_process.Mode = CHASSIS_NORMAL;
     Chassis_process.Safe = CHASSIS_SAFE;
-	Chassis_process.Fire = FIRE_ALL;
-	Chassis_process.Spot_taget = 0;
-	
-	Gimbal_process.Scout_direction = 1;
+    Chassis_process.Fire = FIRE_ALL;
+    Chassis_process.Spot_taget = path_sensor.info->mileage_total;//底盘目标位置为原地
+
+    Gimbal_process.Scout_direction = 1;
 
     pid_clear(&Gimbal_process.YAW_PPM);
     pid_clear(&Gimbal_process.YAW_PVM);
     pid_clear(&Gimbal_process.PITCH_PPM);
     pid_clear(&Gimbal_process.PITCH_PVM);
     pid2_clear(&Gimbal_process.PITCH2_PVM);
-	
-	pid_clear(&Chassis_process.PPM);
-	pid_clear(&Chassis_process.PVM);	
-	
+
+    pid_clear(&Chassis_process.PPM);
+    pid_clear(&Chassis_process.PVM);
+
     motor[GIMBAL_YAW].info->angle_sum = 0;
     motor[GIMBAL_PITCH].info->angle_sum = 0;
 

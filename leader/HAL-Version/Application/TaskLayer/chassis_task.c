@@ -808,7 +808,7 @@ void StartChassisTask(void const * argument)
 //            {
 //                Chassis_RCcontrol();
 //            }
-//            else if(sys.remote_mode == AUTO)
+//            else if( sys.remote_mode == AUTO)
 //            {
 //                Chassis_AUTO();
 //		Chassis_process.getchange_flag = true;

@@ -38,7 +38,7 @@ typedef __packed struct
 	uint8_t attack_colour :2;//红2蓝1没有则默认0
 	uint8_t friction_now :1;
 	uint8_t dial_now : 1;
-	uint8_t others :1;
+	uint8_t fire_stop :1;
 }master_mode_t;
 typedef struct master_info_struct
 {
@@ -47,7 +47,7 @@ typedef struct master_info_struct
 	uint16_t bullet_speed;
 	uint8_t temporary_data;
 	uint8_t     mode_pre;	
-	bool     mode_siwtch;	
+	bool        mode_siwtch;	
 	uint8_t		init_flag;
 	uint8_t		offline_cnt;
 	uint8_t		offline_max_cnt;		
