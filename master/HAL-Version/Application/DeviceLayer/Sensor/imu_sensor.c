@@ -5,7 +5,7 @@
  * @date        15-September-2020
  * @brief       IMU' Manager.
  */
- 
+
 /* Includes ------------------------------------------------------------------*/
 #include "imu_sensor.h"
 
@@ -23,45 +23,45 @@ static void imu_sensor_heart_beat(imu_sensor_t *imu_sen);
 /* Private variables ---------------------------------------------------------*/
 /* Exported variables --------------------------------------------------------*/
 drv_iic_t 	imu_sensor_driver = {
-	.type = DRV_IIC,
+    .type = DRV_IIC,
 };
 
 imu_sensor_info_t 	imu_sensor_info = {
-	.offline_max_cnt = 50,
+    .offline_max_cnt = 50,
 };
 
 imu_sensor_t 	imu_sensor = {
-	.info = &imu_sensor_info,
-	.driver = &imu_sensor_driver,
-	.init = imu_sensor_init,
-	.update = imu_sensor_update,
-	.check = imu_sensor_check,
-	.heart_beat = imu_sensor_heart_beat,
-	.work_state = DEV_ONLINE,
-	.id = DEV_ID_IMU,	
+    .info = &imu_sensor_info,
+    .driver = &imu_sensor_driver,
+    .init = imu_sensor_init,
+    .update = imu_sensor_update,
+    .check = imu_sensor_check,
+    .heart_beat = imu_sensor_heart_beat,
+    .work_state = DEV_ONLINE,
+    .id = DEV_ID_IMU,
 };
 
 /* Private functions ---------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 static void imu_sensor_check(imu_sensor_t *imu_sen)
 {
-	imu_sensor_info_t *imu_info = imu_sen->info;
-	// 加入滤波算法
-	
-	imu_info->rate_yaw -= imu_info->rate_yaw_offset;
-	imu_info->rate_pitch -= imu_info->rate_pitch_offset;
-	
+    imu_sensor_info_t *imu_info = imu_sen->info;
+    // 加入滤波算法
+
+    imu_info->rate_yaw -= imu_info->rate_yaw_offset;
+    imu_info->rate_pitch -= imu_info->rate_pitch_offset;
+
 //	if( (imu_sensor.info->roll<=10)&&(imu_sensor.info->roll >=(-10)) )
 //	{
 //		imu_sensor.info->roll = -imu_sensor.info->roll ;
 //		imu_sensor.info->roll = imu_sensor.info->roll ;
 //		imu_sensor.info->roll = imu_sensor.info->roll ;
 //	}
-	
-	imu_info->offline_cnt = 0;
+
+    imu_info->offline_cnt = 0;
 }
 
 static void imu_sensor_heart_beat(imu_sensor_t *imu_sen)
 {
-	imu_sen->work_state = DEV_ONLINE;
+    imu_sen->work_state = DEV_ONLINE;
 }

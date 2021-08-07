@@ -71,12 +71,12 @@ static void path_update(path_t *path)
         delay_right=0;
     }
 
-    if(delay_left>30)
+    if(delay_left>60)
     {
         path_info->left_touch=true;
         delay_left=0;
     }
-    if(delay_right>30)
+    if(delay_right>60)
     {
         path_info->right_touch=true;
         delay_right=0;

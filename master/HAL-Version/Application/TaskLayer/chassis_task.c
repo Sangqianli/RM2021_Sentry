@@ -14,23 +14,24 @@
 #include "cmsis_os.h"
 
 /* Private macro -------------------------------------------------------------*/
+#define SPEED_MAX  4600
 #define High_Speed 3600  //3600 ， 4600 ,3000
-#define Normal_Speed 2200//对抗赛3000,联盟赛2000
+#define Normal_Speed 2400//对抗赛3000,联盟赛2000
 #define Attack_Speed 1500  //1500
-#define Cover_Speed  2000
+#define Cover_Speed  3000
 #define Escape_Speed 3000 //2500
 #define First_Speed  -1000
 #define Base_Speed   1000
 #define More_Speed   200
 #define High_Swerve_Ratio 0.6  //0.6
 #define Normal_Swerve_Ratio 0.2  //对抗赛0.1
-#define Remain_ATTACK 3U   //取余数，rand%9+1 = 1~9
-#define Remain_COVER  6U   //rand%5 + 1 = 1~5
+#define Remain_ATTACK 6U   //取余数，rand%9+1 = 1~9
+#define Remain_COVER  8U   //rand%5 + 1 = 1~5
 #define Remain_ESCAPE 8U
 #define Atrip_Num 10.f  //轨道分段数
-#define Atrip_Err  1000U  //误差范围
+#define Atrip_Err  200U  //误差范围
 #define Atrip_Line 0U  //变向限位,实测要比误差范围大
-#define Atrip_length 60000U
+#define Atrip_length 50000U
 #define PowerBuff_Hot    60.F
 #define PowerLimit_Normal 12000U
 #define HP_HURT   -10
@@ -66,7 +67,7 @@ static void Cruise_First()
             }
             else	/*未识别到 -- 向左运动*/
             {
-                Chassis_process.Speed_taget = -1000;	/*向左运动*/
+                Chassis_process.Speed_taget = -1600;	/*向左运动*/
             }
             break;
         }
@@ -93,7 +94,7 @@ static void Cruise_First()
             }
             else 		/*未识别到*/
             {
-                Chassis_process.Speed_taget=1000;			/*向右运动*/
+                Chassis_process.Speed_taget=1600;			/*向右运动*/
             }
             break;
         }
@@ -199,6 +200,7 @@ bool IS_Danger(bool ishurt, uint8_t hurt_times)
     if(ishurt)                //如果受到攻击
     {
         safe_cnt = 0;
+
         if( (judge_sensor.info->hurt_data_update)&&(judge_sensor.info->RobotHurt.hurt_type == 0) )
         {
             if(hurtflag != 1)
@@ -230,26 +232,57 @@ bool IS_GOLF_Danger(bool ishurt, uint8_t hurt_times)
     static bool result = 0;
     static uint32_t safe_cnt,hurt_cnt;
 
+
     if(ishurt)                //如果受到攻击
     {
         safe_cnt = 0;
-        if(hurtflag != 1)
+
+        if( (judge_sensor.info->hurt_data_update)&&(judge_sensor.info->RobotHurt.hurt_type == 0) )
         {
-            hurtflag = 1;
-            hurt_cnt++;           //记录受到伤害次数
-            if(hurt_cnt >= hurt_times)     //受到n次伤害以上，判断为进入危险
+            if(hurtflag != 1)
             {
-                hurt_cnt = 0;
-                result = true;
+                hurtflag = 1;
+                hurt_cnt++;           //记录受到伤害次数
+                if(hurt_cnt >= hurt_times)     //受到n次伤害以上，判断为进入危险
+                {
+                    hurt_cnt = 0;
+                    result = true;
+                }
             }
+            judge_sensor.info->hurt_data_update = false;
         }
     }
     else
     {
         hurtflag = 0;
         safe_cnt++;
-        if(safe_cnt > 10000)
+        if(safe_cnt > 12000)
             result = false;
+    }
+    return result;
+}
+
+/**
+* @brief 进攻判断
+* @param bool
+* @return bool
+* 判定正处于攻击状态
+*/
+static bool Is_Attack()
+{
+    static bool result = false;
+    static uint32_t lost_cnt;
+
+    if( (sys.auto_mode == AUTO_MODE_ATTACK)||(leader_sensor.info->data.attack_now == 1) )
+        result = true;
+    else
+    {
+        lost_cnt ++;
+        if( lost_cnt >= 1000 ) //1s
+        {
+            result = false;
+            lost_cnt = 0;
+        }
     }
     return result;
 }
@@ -441,6 +474,15 @@ void Chassis_Stuck_Handle_1_0(void)
     }
     if( static_cnt>500 )
     {
+        if(Chassis_process.Derection_flag == 1)
+        {
+            path_sensor.info->mileage_total = Atrip_length + 200;//校正此时的位置
+        }
+        if(Chassis_process.Derection_flag == -1)
+        {
+            path_sensor.info->mileage_total = 0 - 200;//校正此时的位置
+        }
+
         Chassis_process.getchange_flag = true;
 
         Chassis_process.Derection_flag = - Chassis_process.Derection_flag;
@@ -540,7 +582,7 @@ static void Chassis_Change_Speed(void)
     {
         Chassis_process.Speed_taget = Chassis_process.Derection_flag *  Escape_Speed;
     }
-    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -5000, 5000);  //速度限幅
+    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -3000, 3000);  //速度限幅
 }
 
 /**
@@ -556,17 +598,17 @@ static uint8_t Chassis_Change_Dis(void)
 
     if(Chassis_process.Mode == CHASSIS_ATTACK)
     {
-//		remain = Remain_Five;
         remain = Remain_ATTACK;
+        dis = (rand() % remain) + 1;//生成1到9 的随机数
     } else if(Chassis_process.Mode == CHASSIS_COVER)
     {
         remain = Remain_COVER;
+        dis = (rand() % remain) + 2;//生成3到9 的随机数
     } else if(Chassis_process.Mode == CHASSIS_ESCAPE)
     {
-//		 remain = Remain_Nine;
         remain = Remain_ESCAPE;
+        dis = (rand() % remain) + 2;//生成3到9 的随机数
     }
-    dis = (rand() % remain) + 1;//生成1到9 的随机数
 
     return dis;
 }
@@ -626,18 +668,11 @@ static void Chassis_AUTO()
 */
 static bool Run_Key_info()
 {
-    static	bool	result = false;
-    static uint8_t	key_now	, key_pre;
-    key_now	=	judge_sensor.info->command.commd_keyboard;
-
-    if(	(key_now	!=	key_pre)&&(key_now	==	KEYBOARD_DIERCT_RUN)	)
-    {
-        if(result == false)
-            result	= true;
-        else
-            result	= false;
-    }
-    key_pre	= key_now;
+    static	bool result = false;
+    if(judge_sensor.info->AerialData.cmd & escape)
+        result	= true;
+    else
+        result	= false;
     return	result;
 }
 
@@ -650,18 +685,45 @@ static bool Run_Key_info()
 */
 static bool Highway_Key_info()
 {
-    static	bool	result = false;
-    static uint8_t	key_now	, key_pre;
-    key_now	=	judge_sensor.info->command.commd_keyboard;
+    static	bool result = false;
+    if(judge_sensor.info->AerialData.cmd & check_road)
+        result	= true;
+    else
+        result	= false;
+    return	result;
+}
 
-    if(	(key_now	!=	key_pre)&&(key_now	==	KEYBOARD_STAY_LEFT)	)
-    {
-        if(result == false)
-            result	= true;
-        else
-            result	= false;
-    }
-    key_pre	= key_now;
+/**
+* @brief 云台手接管信息
+* @param void
+* @return void
+*提供检测发送按键确定是否由云台手发送接管
+*返回true表示接管，返回flase表示不干涉
+*/
+static bool Aerial_Control_info()
+{
+    static	bool result = false;
+    static uint32_t wait_cnt;
+    if(judge_sensor.info->AerialData.cmd & control_aerial)
+        result	= true;
+    else
+        result	= false;
+
+//    if(judge_sensor.info->communication_data_update)
+//    {
+//        wait_cnt = 0;
+        judge_sensor.info->communication_data_update = false;
+//    }
+//    else
+//    {
+//        wait_cnt ++;  
+//        if(wait_cnt >= 1000)
+//        {
+//            judge_sensor.info->AerialData.cmd = 0;
+//            judge_sensor.info->AerialData.control_dir = 0;
+//            wait_cnt = 0;
+//        }
+//    }
     return	result;
 }
 
@@ -684,7 +746,7 @@ static void Chassis_GetMode()
         Chassis_process.Safe = CHASSIS_SAFE;
     }
 
-    if( (sys.auto_mode == AUTO_MODE_SCOUT)&&(leader_sensor.info->data.attack_now == 0) )
+    if( Is_Attack() == false )
     {
         if( Chassis_process.Safe == CHASSIS_SAFE )
         {
@@ -698,7 +760,7 @@ static void Chassis_GetMode()
         {
             Chassis_process.Mode = CHASSIS_ESCAPE;
         }
-    } else if( (sys.auto_mode == AUTO_MODE_ATTACK)||(leader_sensor.info->data.attack_now == 1) )
+    } else if(  Is_Attack() == true )
     {
         if( Chassis_process.Safe == CHASSIS_SAFE )
         {
@@ -725,6 +787,10 @@ static void Show_Time()
     static bool left_err_judge = false; //用于左运动碰到左开关
     static bool right_err_judge = false;//用于右运动碰到右开关
 
+    Chassis_process.swerve_judge = false;
+    Chassis_process.swerve_flag = false;//清空巡航模式时的反弹动作
+
+
     if(Chassis_process.getchange_flag)
     {
         Chassis_Change_Dir(); //反向
@@ -739,7 +805,7 @@ static void Show_Time()
     if( (Chassis_process.Spot_taget - path_sensor.info->mileage_total) > 0 )
     {
         Chassis_process.Derection_flag = 1;
-    } else if( (path_sensor.info->mileage_total - Chassis_process.Spot_taget) > 0 )
+    } else if( (path_sensor.info->mileage_total - Chassis_process.Spot_taget) >= 0 )
     {
         Chassis_process.Derection_flag = -1;
     }
@@ -753,69 +819,75 @@ static void Show_Time()
     {
         if(path_sensor.info->right_touch)//碰到右开关
         {
-            right_err_judge = true;
-            Chassis_process.swerve_flag = true;
+            Chassis_process.Mileage_atrip = path_sensor.info->mileage_total;//记录最大里程数
         }
-        if(right_err_judge)
-        {
-            if(path_sensor.info->right_touch == false)//反弹至点触开关释放
-            {
-                Chassis_process.Mileage_atrip = path_sensor.info->mileage_total;//记录最大里程数
-                right_err_judge = false;
-                Chassis_process.swerve_judge = false;
-                Chassis_process.swerve_flag = false;//反弹完成
-            }
-        }
+//            right_err_judge = true;
+//        }
+//        if(right_err_judge)
+//        {
+//            if(path_sensor.info->right_touch == false)//反弹至点触开关释放
+//            {
+//                Chassis_process.Mileage_atrip = path_sensor.info->mileage_total;//记录最大里程数
+//                right_err_judge = false;
+//            }
+//        }
         if(path_sensor.info->left_touch)//向左运动时碰到左开关
         {
-            Chassis_process.swerve_judge = true;//开始反弹判断
-            Chassis_process.swerve_flag = true;
+            path_sensor.info->mileage_total = 0;//清空里程数
         }
-        if(Chassis_process.swerve_judge)
-        {
-            if(path_sensor.info->left_touch == false)//反弹至点触开关释放
-            {
-                Chassis_process.getchange_flag = true; //重新获取距离
-                path_sensor.info->mileage_total = 0;//清空里程数
-                Chassis_process.swerve_judge = false;
-                Chassis_process.swerve_flag = false;//反弹完成
-            }
-        }
+
+//            Chassis_process.swerve_judge = true;//开始反弹判断
+//            Chassis_process.swerve_flag = true;
+//        }
+//        if(Chassis_process.swerve_judge)
+//        {
+//            if(path_sensor.info->left_touch == false)//反弹至点触开关释放
+//            {
+////                Chassis_process.getchange_flag = true; //重新获取距离
+//                path_sensor.info->mileage_total = 0;//清空里程数
+//                Chassis_process.swerve_judge = false;
+//                Chassis_process.swerve_flag = false;//反弹完成
+//            }
+//        }
     }//左
 
     if(Chassis_process.Derection_flag == 1)//向右运动碰开关
     {
         if(path_sensor.info->left_touch)//碰到左开关
         {
-            left_err_judge = true;
-            Chassis_process.swerve_flag = true;
+            path_sensor.info->mileage_total = 0;//清空里程数
+
         }
-        if(left_err_judge)
-        {
-            if(path_sensor.info->left_touch == false)//反弹至点触开关释放
-            {
-                path_sensor.info->mileage_total = 0;//清空里程数
-                left_err_judge = false;
-                Chassis_process.swerve_judge = false;
-                Chassis_process.swerve_flag = false;//反弹完成
-            }
-        }
+
+//            left_err_judge = true;
+//        }
+//        if(left_err_judge)
+//        {
+//            if(path_sensor.info->left_touch == false)//反弹至点触开关释放
+//            {
+//                path_sensor.info->mileage_total = 0;//清空里程数
+//                left_err_judge = false;
+//            }
+//        }
 
         if(path_sensor.info->right_touch)//碰到右开关
         {
-            Chassis_process.swerve_judge = true;//开始反弹判断
-            Chassis_process.swerve_flag = true;
+            Chassis_process.Mileage_atrip = path_sensor.info->mileage_total;//记录最大里程数
         }
-        if(Chassis_process.swerve_judge)
-        {
-            if(path_sensor.info->right_touch == false)//反弹至点触开关释放
-            {
-                Chassis_process.getchange_flag = true;//重新获取距离
-                Chassis_process.Mileage_atrip = path_sensor.info->mileage_total;//记录最大里程数
-                Chassis_process.swerve_judge = false;
-                Chassis_process.swerve_flag = false;//反弹完成
-            }
-        }
+
+//            Chassis_process.swerve_judge = true;//开始反弹判断
+//            Chassis_process.swerve_flag = true;
+//        }
+//        if(Chassis_process.swerve_judge)
+//        {
+//            if(path_sensor.info->right_touch == false)//反弹至点触开关释放
+//            {
+////                Chassis_process.getchange_flag = true;//重新获取距离
+//                Chassis_process.Mileage_atrip = path_sensor.info->mileage_total;//记录最大里程数
+//                Chassis_process.swerve_judge = false;
+//                Chassis_process.swerve_flag = false;//反弹完成
+//            }
+//        }
     }//右
 }
 
@@ -845,8 +917,7 @@ static void Static_shoot()
         {
             Chassis_process.Derection_flag = -1;
         }
-        Chassis_process.static_want =false;
-//        Chassis_process.Speed_taget = Chassis_process.Derection_flag * Attack_Speed;
+        Chassis_process.static_want = false;
     }
 }
 
@@ -865,23 +936,23 @@ static void Outpost_get()
         Chassis_process.Fire = FIRE_ALL;
     } else {
         /***************遥控器拨轮控制模拟前哨站，主要用于训练方便，比赛时去掉*********/
-        if( abs(rc_sensor.info->thumbwheel) >=630 )
-        {
-            tum_cnt++; 
-            if(tum_cnt > 100)
-            {
-                if(rc_sensor.info->thumbwheel >= 630)
-                {
-                    Chassis_process.Fire = FIRE_ALL;
-                } else if(rc_sensor.info->thumbwheel <= -630)
-                {
-                    Chassis_process.Fire = FIRE_RUN;
-                }
-                tum_cnt = 0;
-            }
-        }
+//        if( abs(rc_sensor.info->thumbwheel) >=630 )
+//        {
+//            tum_cnt++;
+//            if(tum_cnt > 100)
+//            {
+//                if(rc_sensor.info->thumbwheel >= 630)
+//                {
+//                    Chassis_process.Fire = FIRE_ALL;
+//                } else if(rc_sensor.info->thumbwheel <= -630)
+//                {
+//                    Chassis_process.Fire = FIRE_RUN;
+//                }
+//                tum_cnt = 0;
+//            }
+//        }
         /******************************************************/
-//        Chassis_process.Fire = FIRE_RUN;//比赛时恢复
+        Chassis_process.Fire = FIRE_RUN;//比赛时恢复
     }
 }
 /**
@@ -925,26 +996,28 @@ static void Chassis_AUTOcontrol_3_0()
     {
         if(Chassis_process.Mode == CHASSIS_NORMAL)
         {
-            Chassis_process.PPM.kp = 0.3;
+            Chassis_process.PPM.kp = 0.4;
             Chassis_process.PPM.out_max = 4000;
         }
         else if(Chassis_process.Mode == CHASSIS_ATTACK)
         {
-            Chassis_process.PPM.kp = 0.2;
-            Chassis_process.PPM.out_max = 1800;
+            Chassis_process.PPM.kp = 0.3;
+            Chassis_process.PPM.out_max = 3000;
         }
         else if(Chassis_process.Mode == CHASSIS_COVER)
         {
-            Chassis_process.PPM.kp = 0.3;
-            Chassis_process.PPM.out_max = 5000;
+            Chassis_process.PPM.kp = 0.4;
+            Chassis_process.PPM.out_max = SPEED_MAX;
         }
         else if(Chassis_process.Mode == CHASSIS_ESCAPE)
         {
-            Chassis_process.PPM.kp = 0.3;
-            Chassis_process.PPM.out_max = 5000;
+            Chassis_process.PPM.kp = 0.4;
+            Chassis_process.PPM.out_max = SPEED_MAX;
         }
 
         Chassis_Stuck_Handle(); // 底盘静止处理
+
+
 
         Chassis_process.PPM.target = Chassis_process.Spot_taget;
         Chassis_process.PPM.measure = path_sensor.info->mileage_total;
@@ -957,27 +1030,28 @@ static void Chassis_AUTOcontrol_3_0()
             Chassis_process.Speed_taget = 0;
         } else
         {
+            Chassis_process.Speed_taget = Chassis_process.PPM.out;
+
             if(Chassis_process.Mode == CHASSIS_NORMAL)
             {
                 if(Chassis_process.Spot_taget == 0)//方向向左
-                {
-                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -5000, -Chassis_process.PPM.integral_max);
+                { 
+                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -4000, -Chassis_process.PPM.integral_max);
                 } else if(Chassis_process.Spot_taget == Chassis_process.Mileage_atrip)//方向向右
                 {
-                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, Chassis_process.PPM.integral_max, 5000);
+                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, Chassis_process.PPM.integral_max, 4000);
                 }
             }
             else
             {
                 if(Chassis_process.Derection_flag == 1)//向右
                 {
-                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, Chassis_process.PPM.integral_max, 5000);
+                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, Chassis_process.PPM.integral_max, SPEED_MAX);
                 } else if(Chassis_process.Derection_flag == -1)//向左
                 {
-                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -5000, -Chassis_process.PPM.integral_max);
+                    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -SPEED_MAX, -Chassis_process.PPM.integral_max);
                 }//加速度偏置，防止速度太慢停下来
             }
-            Chassis_process.Speed_taget = Chassis_process.PPM.out;
         }
     }
     Chassis_process.PVM.target = Chassis_process.Speed_taget;
@@ -985,7 +1059,6 @@ static void Chassis_AUTOcontrol_3_0()
     pid_calculate(&Chassis_process.PVM);
     if(Chassis_process.swerve_flag)
     {
-        Chassis_process.PVM.target = 0;
         Chassis_process.PVM.out = 0;  //反弹时输出为0
     }
     NormalData_0x200[0] = (int16_t)Chassis_process.PVM.out;
@@ -1063,6 +1136,7 @@ static void Chassis_AUTO_TOUCH()
 static void Chassis_AUTO_ENCODER()
 {
     static float static_pot;
+    static uint16_t err_cnt;
 
     Outpost_get();//获取前哨站状态，改变底盘模式
 
@@ -1072,28 +1146,24 @@ static void Chassis_AUTO_ENCODER()
     {
         Chassis_process.Speed_taget = 0;
         static_pot = path_sensor.info->mileage_total;//记录此时的位置
+        path_sensor.info->mileage_total = Atrip_length;
     } else if(Chassis_process.Fire == FIRE_RUN)
     {
         Chassis_GetMode(); //获取状态
 
         if(Chassis_process.Derection_flag == -1)
         {
-            if(path_sensor.info->mileage_total < (static_pot - 20000) )//到达位置释放
+            if(path_sensor.info->mileage_total <= 0 )//到达位置释放
             {
-                Chassis_process.Trip_times ++;     //记录往返次数
                 Chassis_process.Derection_flag = 1;//向右跑轨
-                Chassis_process.swerve_judge = false;
-                Chassis_process.swerve_flag = false;//反弹完成
             }
         }//左
 
         if(Chassis_process.Derection_flag == 1)
         {
-            if(path_sensor.info->mileage_total  > static_pot )//到达位置释放
+            if(path_sensor.info->mileage_total  >= static_pot )//到达位置释放
             {
                 Chassis_process.Derection_flag = -1;//向左跑轨
-                Chassis_process.swerve_judge = false;
-                Chassis_process.swerve_flag = false;//反弹完成
             }
         }//右
     }
@@ -1143,7 +1213,7 @@ static void Chassis_AUTO_3_0()
 static void Chassis_INSPECTIONcontrol()
 {
     Chassis_process.PPM.kp = 1;
-    Chassis_process.PPM.out_max = 2000;
+    Chassis_process.PPM.out_max = 3000;
 
     Chassis_process.PPM.target = Chassis_process.Spot_taget;
     Chassis_process.PPM.measure = path_sensor.info->mileage_total;
@@ -1156,6 +1226,8 @@ static void Chassis_INSPECTIONcontrol()
         Chassis_process.Speed_taget = 0;
     } else
     {
+        Chassis_process.Speed_taget = Chassis_process.PPM.out;
+
         if( (Chassis_process.Spot_taget - path_sensor.info->mileage_total) > 0 )
         {
             Chassis_process.Derection_flag = 1;
@@ -1172,7 +1244,6 @@ static void Chassis_INSPECTIONcontrol()
             Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -2000, 0);
         }//加速度偏置，防止速度太慢停下来
 
-        Chassis_process.Speed_taget = Chassis_process.PPM.out;
     }
 
     Chassis_process.PVM.target = Chassis_process.Speed_taget;
@@ -1272,6 +1343,71 @@ static void Chassis_AutoWayGet()
         Chassis_process.Way = WAY_ENCODER;
 }
 
+/**
+* @brief 自动模式获取
+* @param void
+* @return void
+*用于决定使用哪种自动模式，以遥控器控制
+*/
+static void Aerial_Control()
+{
+    static int8_t record_dir;
+
+    Chassis_process.swerve_judge = false;
+    Chassis_process.swerve_flag = false;//清空巡航模式时的反弹动作
+	
+	Chassis_process.static_want = false;//清除静止标志位
+
+    if(judge_sensor.info->AerialData.control_dir != record_dir)
+    {
+        if(judge_sensor.info->AerialData.control_dir == -1)
+            Chassis_process.Speed_taget = -2000;
+        else if(judge_sensor.info->AerialData.control_dir == 1)
+            Chassis_process.Speed_taget = 2000;
+    }
+
+    if(judge_sensor.info->AerialData.control_dir == -1)
+    {
+        Chassis_process.Speed_taget -= 5;
+    } else if(judge_sensor.info->AerialData.control_dir == 1)
+    {
+        Chassis_process.Speed_taget += 5;
+    }
+
+    record_dir = judge_sensor.info->AerialData.control_dir;
+
+    Chassis_process.Speed_taget = constrain(Chassis_process.Speed_taget, -SPEED_MAX, SPEED_MAX);
+
+    Chassis_process.PVM.target = Chassis_process.Speed_taget;
+    Chassis_process.PVM.measure = motor[CHASSIS].info->speed;
+    pid_calculate(&Chassis_process.PVM);
+    NormalData_0x200[0] = Chassis_process.PVM.out;
+}
+
+/**
+* @brief 所有自动模式的集合
+* @param void
+* @return void
+*包含纯自动和云台手操控的内容
+*/
+static void AUTO_ALL()
+{
+    if( Aerial_Control_info() &&  Chassis_process.init_flag )
+    {
+        Aerial_Control();
+    } else
+    {
+        Chassis_AutoWayGet();
+        if( Chassis_process.Way == WAY_NORMAL )
+            Chassis_AUTO_3_0();	//混合跑轨
+        else if( Chassis_process.Way == WAY_TOUCH )
+            Chassis_AUTO_TOUCH(); //纯触碰跑轨
+        else if( Chassis_process.Way == WAY_ENCODER )
+            Chassis_AUTO_ENCODER();//纯编码器跑轨
+
+//                Chassis_AUTO();//遥控
+    }
+}
 /* Exported functions --------------------------------------------------------*/
 
 /**
@@ -1282,10 +1418,10 @@ static void Chassis_AutoWayGet()
 */
 void Chassis_Init()
 {
-    Chassis_process.PPM.kp = 0.3;
-    Chassis_process.PPM.ki = 0.001;
+    Chassis_process.PPM.kp = 0.4;
+    Chassis_process.PPM.ki = 0;//0.001
     Chassis_process.PPM.kd = 0;
-    Chassis_process.PPM.integral_max = 600;
+    Chassis_process.PPM.integral_max = 1600;
     Chassis_process.PPM.out_max = 5000;
 
     Chassis_process.PVM.kp = 12;//10
@@ -1297,8 +1433,8 @@ void Chassis_Init()
     Chassis_process.Derection_flag = -1;//初始向左
     Chassis_process.rotate_ratio = 8;
     Chassis_process.Trip_times = 1;
-	
-	Chassis_process.Fire = FIRE_ALL;;
+
+    Chassis_process.Fire = FIRE_ALL;;
 }
 /**
 * @brief 底盘任务
@@ -1318,15 +1454,7 @@ void StartChassisTask(void const * argument)
             }
             else if(sys.remote_mode == AUTO)
             {
-                Chassis_AutoWayGet();
-                if(Chassis_process.Way == WAY_NORMAL )
-                    Chassis_AUTO_3_0();	//混合跑轨
-                else if( Chassis_process.Way == WAY_TOUCH )
-                    Chassis_AUTO_TOUCH(); //纯触碰跑轨
-                else if( Chassis_process.Way == WAY_ENCODER )
-					Chassis_AUTO_ENCODER();//纯编码器跑轨
-
-//                Chassis_AUTO();//遥控
+                AUTO_ALL();
             } else if(sys.remote_mode == INSPECTION)
             {
                 Chassis_INSPECTION();

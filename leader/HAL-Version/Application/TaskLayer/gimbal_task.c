@@ -12,18 +12,18 @@
 #include "cmsis_os.h"
 
 /* Private macro -------------------------------------------------------------*/
-#define SCOUT_PITCH_SPEED  1.6f
-#define SCOUT_YAW_SPEED     2	/*侦察速度4*/
+#define SCOUT_PITCH_SPEED  1.5f
+#define SCOUT_YAW_SPEED     3	/*侦察速度4*/
 #define SCOUT_YAW_TRUN_TIMES 4U //前后侦察切换次数（往返）
 #define SCOUT_FRONT   1U   //修改前后侦察时用到，作用于修改往返次数，跟上面切换次数有关
 #define SCOUT_BACK    4U
 
-#define SCOUT_YAW_RIGHT_ANGLE   -1000        //  +-1600
-#define SCOUT_YAW_LEFT_ANGLE   1000 	/*侦察yaw轴角度左右边界*/
+#define SCOUT_YAW_RIGHT_ANGLE   -1300        //  +-1600
+#define SCOUT_YAW_LEFT_ANGLE   1300 	/*侦察yaw轴角度左右边界*/
 
 
-#define SCOUT_PITCH_UP_ANGLE     0
-#define SCOUT_PITCH_DOWN_ANGLE  -340	/*侦察pitch轴角度上下边界*/
+#define SCOUT_PITCH_UP_ANGLE      0
+#define SCOUT_PITCH_DOWN_ANGLE  -500	/*侦察pitch轴角度上下边界*/
 
 #define ATTACK_RAMP              40    //切换到打击模式下的斜坡参数10
 
@@ -59,14 +59,14 @@ static void Gimbal_RCdata()
     {
         if((yaw_target_now-yaw_target_last)>0)
         {
-            Gimbal_process.Yaw_taget = yaw_target_now+motor[GIMBAL_YAW].info->angle_sum;
+            Gimbal_process.Yaw_taget = yaw_target_now-motor[GIMBAL_YAW].info->angle_sum;
         }
     }
     if(yaw_target_now<0)
     {
         if((yaw_target_now-yaw_target_last)<0)
         {
-            Gimbal_process.Yaw_taget = yaw_target_now+motor[GIMBAL_YAW].info->angle_sum;
+            Gimbal_process.Yaw_taget = yaw_target_now-motor[GIMBAL_YAW].info->angle_sum;
         }
     }
 
@@ -105,12 +105,12 @@ static void Gimbal_Measure_Data()
     /*世界Yaw轴速度合成*/
     roll_cos = arm_cos_f32(gg);
     roll_sin = arm_sin_f32(gg);
-    Gimbal_process.RealYaw_speed=imu_sensor.info->rate_yaw*roll_cos+imu_sensor.info->rate_roll*roll_sin;
+    Gimbal_process.RealYaw_speed=imu_sensor.info->rate_yaw*roll_cos+imu_sensor.info->rate_pitch*roll_sin;
     /*..........................................*/
-    Gimbal_process.YAW_PPM.measure = motor[GIMBAL_YAW].info->angle_sum;
+    Gimbal_process.YAW_PPM.measure = -motor[GIMBAL_YAW].info->angle_sum;
     Gimbal_process.PITCH_PPM.measure = -motor[GIMBAL_PITCH].info->angle_sum;
     Gimbal_process.YAW_PVM.measure = Gimbal_process.RealYaw_speed;
-    Gimbal_process.PITCH_PVM.measure = imu_sensor.info->rate_pitch;
+    Gimbal_process.PITCH_PVM.measure = -imu_sensor.info->rate_roll;
 
     /*PID参数调节*/
 //    if(abs(imu_sensor.info->roll)<=140)
@@ -165,9 +165,9 @@ static void Gimbal_control()
     Gimbal_process.PITCH_PVM.target = Gimbal_process.PITCH_PPM.out;
     pid_calculate (&Gimbal_process.YAW_PVM);
     pid_calculate(&Gimbal_process.PITCH_PVM);
-
-    NormalData_0x1FF[0] =  (int16_t)(-Gimbal_process.PITCH_PVM.out);
-    NormalData_0x1FF[1] =  (int16_t)(Gimbal_process.YAW_PVM.out);
+	
+    NormalData_Can1_0x1FF[3] =  (int16_t)(-Gimbal_process.PITCH_PVM.out);	
+    NormalData_0x1FF[1] =  (int16_t)(-Gimbal_process.YAW_PVM.out);
 }
 
 /**
@@ -251,8 +251,8 @@ static  void Scout()
 
 static void Gimbal_line()
 {
-    Gimbal_process.Yaw_taget=constrain(Gimbal_process.Yaw_taget,-1500.f,1500.f);	
-    Gimbal_process.Pitch_taget=constrain(Gimbal_process.Pitch_taget,-350.f,800.f);
+    Gimbal_process.Yaw_taget=constrain(Gimbal_process.Yaw_taget,-1600.f,1600.f);	
+    Gimbal_process.Pitch_taget=constrain(Gimbal_process.Pitch_taget,-500.f,100.f);
 }
 
 static void AUTOMode_switch()
@@ -280,8 +280,8 @@ static void Gimbal_reset()
     static float delta_yaw,delta_pitch;
     if(sys.switch_state.RESET_CAL)
     {
-        delta_yaw = 122.f - motor[GIMBAL_YAW].info->angle;
-        delta_pitch = 1040.f - motor[GIMBAL_PITCH].info->angle;
+        delta_yaw = 4862.f - motor[GIMBAL_YAW].info->angle;
+        delta_pitch = 1738.f - motor[GIMBAL_PITCH].info->angle;
         if(abs(delta_yaw)<4096)
         {
             delta_yaw = delta_yaw;
@@ -296,9 +296,9 @@ static void Gimbal_reset()
         pitch_ramp = delta_pitch/500.f;
         sys.switch_state.RESET_CAL = false;
     }
-    Gimbal_process.Yaw_taget =  RampFloat( abs(yaw_ramp),delta_yaw,Gimbal_process.Yaw_taget);
+    Gimbal_process.Yaw_taget =  RampFloat( abs(yaw_ramp),-delta_yaw,Gimbal_process.Yaw_taget);
     Gimbal_process.Pitch_taget =  RampFloat( abs(pitch_ramp), - delta_pitch,Gimbal_process.Pitch_taget);
-    if( (abs(motor[GIMBAL_YAW].info->angle-122)<=3)&&(abs(motor[GIMBAL_PITCH].info->angle-1040)<=3) )
+    if( (abs(motor[GIMBAL_YAW].info->angle-4862)<=10)&&(abs(motor[GIMBAL_PITCH].info->angle-1738)<=10) )
     {
         if(sys.switch_state.SYS_RESET)
         {
@@ -311,11 +311,12 @@ static void Gimbal_reset()
         }
         motor[GIMBAL_YAW].info->angle_sum = 0;
         motor[GIMBAL_PITCH].info->angle_sum = 0;
-        Gimbal_process.Yaw_taget = motor[GIMBAL_YAW].info->angle_sum;
+        Gimbal_process.Yaw_taget = - motor[GIMBAL_YAW].info->angle_sum;
         Gimbal_process.Pitch_taget = - motor[GIMBAL_PITCH].info->angle_sum;
     }
     sys.fire_state.FIRE_OPEN = false;
-    NormalData_0x1FF[2] = 0;
+//    NormalData_0x1FF[2] = 0;
+    NormalData_Can1_0x1FF[0] = 0;	
 }
 
 /**
@@ -448,9 +449,8 @@ void Gimbal_Init()
     KalmanCreate(&RC_yaw_p,Gimbal_yaw_Q,Gimbal_yaw_R);
     KalmanCreate(&RC_pitch_p,Gimbal_pitch_Q,Gimbal_pitch_R);
 
-
     Gimbal_process.YAW_PPM.target=0;
-    Gimbal_process.YAW_PPM.kp=15;
+    Gimbal_process.YAW_PPM.kp=12;//12
     Gimbal_process.YAW_PPM.ki=0;
     Gimbal_process.YAW_PPM.kd=0;
     Gimbal_process.YAW_PPM.integral_max=8000;
@@ -458,25 +458,24 @@ void Gimbal_Init()
     Gimbal_process.YAW_PPM.out=0;//yaw位置环
 
     Gimbal_process.YAW_PVM.target=0;
-    Gimbal_process.YAW_PVM.kp=14;
-    Gimbal_process.YAW_PVM.ki=0.6;
+    Gimbal_process.YAW_PVM.kp=20;//30
+    Gimbal_process.YAW_PVM.ki=0.3;//0.8
     Gimbal_process.YAW_PVM.kd=0;
     Gimbal_process.YAW_PVM.integral_max=20000;
     Gimbal_process.YAW_PVM.out_max=28000;
     Gimbal_process.YAW_PVM.out=0;//yaw速度环
 
-
     Gimbal_process.PITCH_PPM.target=0;
-    Gimbal_process.PITCH_PPM.kp=13;//15
+    Gimbal_process.PITCH_PPM.kp=16;//12
     Gimbal_process.PITCH_PPM.ki=0;
     Gimbal_process.PITCH_PPM.kd=0;
     Gimbal_process.PITCH_PPM.integral_max=8000;
     Gimbal_process.PITCH_PPM.out_max=16000;
     Gimbal_process.PITCH_PPM.out=0;//pitch位置环
-
+ 
     Gimbal_process.PITCH_PVM.target=0;
-    Gimbal_process.PITCH_PVM.kp=10;//15
-    Gimbal_process.PITCH_PVM.ki=0.4;//0.4
+    Gimbal_process.PITCH_PVM.kp=20;//20
+    Gimbal_process.PITCH_PVM.ki=0.8;//0.4
     Gimbal_process.PITCH_PVM.kd=0;
     Gimbal_process.PITCH_PVM.integral_max=26000;
     Gimbal_process.PITCH_PVM.out_max=28000;
@@ -496,7 +495,7 @@ void StartGimbalTask(void const * argument)
                 {
                     Gimbal_RCdata();
                 }
-                else if( sys.remote_mode == AUTO )
+                else if(sys.remote_mode == AUTO)
                 {
                     Auto_Aimed();
                 } else if(sys.remote_mode == INSPECTION)

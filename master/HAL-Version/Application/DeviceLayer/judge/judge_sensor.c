@@ -7,7 +7,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include  "judge_sensor.h"
+#include "judge_sensor.h"
 #include "rp_math.h"
 #include "device.h"
 #include "judge_potocol.h"

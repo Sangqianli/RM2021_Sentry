@@ -75,7 +75,7 @@ typedef enum {
     LEN_DART_REMAINING_TIME			= 1,
 
     // 0x020x
-    LEN_RADAR_DATA			        = 24,
+    LEN_AERAL_DATA			        = 8,
     LEN_GAME_ROBOT_STATUS			= 27,
     LEN_POWER_HEAT_DATA 			= 16,
     LEN_GAME_ROBOT_POS				= 16,
@@ -221,12 +221,13 @@ void judge_update(uint8_t *rxBuf)
                 break;
 
                 case ID_COMMUNICATION: {
-                    memcpy(&judge_info->RadarData, (rxBuf+DATA_SEG), LEN_RADAR_DATA);  //雷达站数据
+                    memcpy(&judge_info->AerialData, (rxBuf+DATA_SEG), LEN_AERAL_DATA);  //云台手数据
+					judge_info->communication_data_update = true;					
                 }
                 break;
 				
 				case ID_COMMAND:{
-					memcpy(&judge_info->command, (rxBuf+DATA_SEG), 15);  //云台数据
+					memcpy(&judge_info->command, (rxBuf+DATA_SEG), 15);  
 					judge_info->command_data_update = true;
 				}
                 }

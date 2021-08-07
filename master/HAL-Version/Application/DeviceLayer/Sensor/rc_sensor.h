@@ -61,13 +61,13 @@
 #define    MOUSE_Z_MOVE_SPEED    (rc_sensor_info.mouse_vz)
 
 
-/* 检测鼠标按键状态 
+/* 检测鼠标按键状态
    按下为1，没按下为0*/
 #define    IF_MOUSE_PRESSED_LEFT    (rc_sensor_info.mouse_btn_l == 1)
 #define    IF_MOUSE_PRESSED_RIGH    (rc_sensor_info.mouse_btn_r == 1)
 
 
-/* 检测键盘按键状态 
+/* 检测键盘按键状态
    若对应按键被按下，则逻辑表达式的值为1，否则为0 */
 #define    IF_KEY_PRESSED         (  rc_sensor_info.key_v  )
 #define    IF_KEY_PRESSED_W       ( (rc_sensor_info.key_v & KEY_PRESSED_OFFSET_W)    != 0 )
@@ -89,45 +89,45 @@
 
 /* Exported types ------------------------------------------------------------*/
 typedef struct rc_sensor_info_struct {
-	int16_t 	ch0;
-	int16_t 	ch1;
-	int16_t 	ch2;
-	int16_t 	ch3;
-	uint8_t  	s1;
-	uint8_t  	s2;
-	int16_t		mouse_vx;
-	int16_t 	mouse_vy;
-	int16_t 	mouse_vz;
-	uint8_t 	mouse_btn_l;
-	uint8_t 	mouse_btn_r;
-	uint16_t	key_v;
-	int16_t 	thumbwheel;	
-	
-	uint8_t     s1_pre;
-	uint8_t     s2_pre;	
-	bool     s1_siwtch_up;
-	bool     s1_switch_uptomid;
-	bool     s1_switch_downtomid;	
-	bool     s1_siwtch_down;
-	bool     s2_siwtch_up;
-	bool     s2_switch_uptomid;
-	bool     s2_switch_downtomid;	
-	bool     s2_siwtch_down;	
-	uint8_t     init_flag;
-	int16_t		offline_cnt;
-	int16_t		offline_max_cnt;
+    int16_t 	ch0;
+    int16_t 	ch1;
+    int16_t 	ch2;
+    int16_t 	ch3;
+    uint8_t  	s1;
+    uint8_t  	s2;
+    int16_t		mouse_vx;
+    int16_t 	mouse_vy;
+    int16_t 	mouse_vz;
+    uint8_t 	mouse_btn_l;
+    uint8_t 	mouse_btn_r;
+    uint16_t	key_v;
+    int16_t 	thumbwheel;
+
+    uint8_t     s1_pre;
+    uint8_t     s2_pre;
+    bool     s1_siwtch_up;
+    bool     s1_switch_uptomid;
+    bool     s1_switch_downtomid;
+    bool     s1_siwtch_down;
+    bool     s2_siwtch_up;
+    bool     s2_switch_uptomid;
+    bool     s2_switch_downtomid;
+    bool     s2_siwtch_down;
+    uint8_t     init_flag;
+    int16_t		offline_cnt;
+    int16_t		offline_max_cnt;
 } rc_sensor_info_t;
 
 typedef struct rc_sensor_struct {
-	rc_sensor_info_t	*info;
-	drv_uart_t			*driver;
-	void				(*init)(struct rc_sensor_struct *self);
-	void				(*update)(struct rc_sensor_struct *self, uint8_t *rxBuf);
-	void				(*check)(struct rc_sensor_struct *self);	
-	void				(*heart_beat)(struct rc_sensor_struct *self);
-	dev_work_state_t	work_state;
-	dev_errno_t			errno;
-	dev_id_t			id;
+    rc_sensor_info_t	*info;
+    drv_uart_t			*driver;
+    void				(*init)(struct rc_sensor_struct *self);
+    void				(*update)(struct rc_sensor_struct *self, uint8_t *rxBuf);
+    void				(*check)(struct rc_sensor_struct *self);
+    void				(*heart_beat)(struct rc_sensor_struct *self);
+    dev_work_state_t	work_state;
+    dev_errno_t			errno;
+    dev_id_t			id;
 } rc_sensor_t;
 
 extern rc_sensor_info_t rc_sensor_info;
@@ -135,5 +135,5 @@ extern rc_sensor_t 		rc_sensor;
 /* Exported functions --------------------------------------------------------*/
 bool RC_IsChannelReset(void);
 void RC_ResetData(rc_sensor_t *rc);
-	
+
 #endif

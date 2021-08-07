@@ -214,7 +214,24 @@ void CAN1_rxDataHandler(uint32_t canId, uint8_t *rxBuf)
 	{
 		motor[GIMBAL_PITCH].update(&motor[GIMBAL_PITCH], rxBuf);
 		motor[GIMBAL_PITCH].check(&motor[GIMBAL_PITCH]);
-	
+	}	
+		/* ²¦ÅÌ */
+	else if(canId == DIAL_CAN_ID)
+	{
+		motor[DIAL].update(&motor[DIAL], rxBuf);
+		motor[DIAL].check(&motor[DIAL]);
+	}	
+		/* ×óÄ¦²ÁÂÖ */	
+	else if(canId == FIRE_LEFT_ID)
+	{
+		motor[FIRE_LEFT].update(&motor[FIRE_LEFT], rxBuf);
+		motor[FIRE_LEFT].check(&motor[FIRE_LEFT]);
+	}
+		/* ÓÒÄ¦²ÁÂÖ */		
+	else if(canId == FIRE_RIGHT_ID)
+	{
+		motor[FIRE_RIGHT].update(&motor[FIRE_RIGHT], rxBuf);
+		motor[FIRE_RIGHT].check(&motor[FIRE_RIGHT]);
 	}	
 }
 
@@ -239,13 +256,6 @@ void CAN2_rxDataHandler(uint32_t canId, uint8_t *rxBuf)
 		motor[GIMBAL_YAW].update(&motor[GIMBAL_YAW], rxBuf);		
 		motor[GIMBAL_YAW].check(&motor[GIMBAL_YAW]);
 	}
-		/* ²¦ÅÌ */
-	else if(canId == DIAL_CAN_ID)
-	{
-		motor[DIAL].update(&motor[DIAL], rxBuf);
-		motor[DIAL].check(&motor[DIAL]);
-	}	
-
 	/* Ç¹¿ÚÊý¾Ý */
 	else if(canId == SHOOT_DATA_ID)
 	{

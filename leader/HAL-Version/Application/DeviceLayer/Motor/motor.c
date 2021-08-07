@@ -38,26 +38,40 @@ drv_can_t		motor_driver[] = {
 		.tx_data = CAN_SendSingleData,
 	},
 	[DIAL] = {
-		.type = DRV_CAN2,
+		.type = DRV_CAN1,
 		.can_id =  DIAL_CAN_ID,
 //		.std_id = RM3508_GetStdId,
 //		.drv_id = RM3508_GetDrvId,
 		.tx_data = CAN_SendSingleData,
 	},
 	[GIMBAL_PITCH] = {
-		.type = DRV_CAN2,
+		.type = DRV_CAN1,
 		.can_id =  GIMBAL_CAN_ID_PITCH,
 //		.std_id = RM3508_GetStdId,
 //		.drv_id = RM3508_GetDrvId,
 		.tx_data = CAN_SendSingleData,
 	},
 	[GIMBAL_YAW] = {
-		.type = DRV_CAN1,
+		.type = DRV_CAN2,
 		.can_id = GIMBAL_CAN_ID_YAW,
 //		.std_id = RM3508_GetStdId,
 //		.drv_id = RM3508_GetDrvId,
 		.tx_data = CAN_SendSingleData,
 	},
+	[FIRE_LEFT] = {
+		.type = DRV_CAN1,
+		.can_id =  GIMBAL_CAN_ID_PITCH,
+//		.std_id = RM3508_GetStdId,
+//		.drv_id = RM3508_GetDrvId,
+		.tx_data = CAN_SendSingleData,
+	},
+	[FIRE_RIGHT] = {
+		.type = DRV_CAN1,
+		.can_id = GIMBAL_CAN_ID_YAW,
+//		.std_id = RM3508_GetStdId,
+//		.drv_id = RM3508_GetDrvId,
+		.tx_data = CAN_SendSingleData,
+	},		
 };
 
 // 电机信息
@@ -74,6 +88,12 @@ motor_info_t 	motor_info[] = {
 	{
 		.offline_max_cnt = 50,
 	},
+	{
+		.offline_max_cnt = 50,
+	},
+	{
+		.offline_max_cnt = 50,
+	},	
 };
 
 // 底盘电机传感器
@@ -118,6 +138,26 @@ motor_t	   motor[] = {
 		.work_state = DEV_OFFLINE,
 		.id = DEV_ID_GIMBAL_YAW,
 	},
+	[FIRE_LEFT] = {
+		.info = &motor_info[FIRE_LEFT],
+		.driver = &motor_driver[FIRE_LEFT],
+		.init = motor_init,
+		.update = motor_update,
+		.check = motor_check,
+		.heart_beat = motor_heart_beat,
+		.work_state = DEV_OFFLINE,
+		.id = DEV_ID_FIRE_LEFT,
+	},
+	[FIRE_RIGHT] = {
+		.info = &motor_info[FIRE_RIGHT],
+		.driver = &motor_driver[FIRE_RIGHT],
+		.init = motor_init,
+		.update = motor_update,
+		.check = motor_check,
+		.heart_beat = motor_heart_beat,
+		.work_state = DEV_OFFLINE,
+		.id = DEV_ID_FIRE_RIGHT,
+	},	
 };
 
 

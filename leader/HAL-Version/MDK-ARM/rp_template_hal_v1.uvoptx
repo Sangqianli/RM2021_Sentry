@@ -292,6 +292,16 @@
           <WinNumber>2</WinNumber>
           <ItemText>vision_dis_meter,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>10</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>\\rp_template_hal_v1\../Application/TaskLayer/system_task.c\sys</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>Friction_process,0x0A</ItemText>
+        </Ww>
       </WatchWindow2>
       <Tracepoint>
         <THDelay>0</THDelay>

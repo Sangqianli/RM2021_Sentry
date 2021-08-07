@@ -14,11 +14,12 @@
 /* Private macro -------------------------------------------------------------*/
 #define FIRING_RATE_LOW   345
 #define FIRING_RATE_MID   500
-#define FIRING_RATE_HIGH  550    /*28m射速500*/
+#define FIRING_RATE_HIGH  500    /*26m射速500*/
 
 #define SHOOT_FREQ_ONE    270
 #define SHOOT_FREQ_LOW    1080   /*4射频*/
 #define SHOOT_FREQ_MID    2160   /*8射频*/
+#define	SHOOT_FREQ_TEN    2700	/*10射频*/
 #define SHOOT_FREQ_TWELVE 3240   /*12射频*/
 #define SHOOT_FREQ_HIGH   4320   /*16射频*/
 #define SHOOT_FREQ_HEATLIMIT  7560  /*28射频*/
@@ -38,23 +39,27 @@ static void Friction_Control()
     static bool speed_over = false;
     if(sys.remote_mode == AUTO)
     {
-//        if(judge_sensor.info->GameStatus.game_progress == 4) //比赛开始后再开摩擦轮
-//        {
-        sys.fire_state.FRICTION_OPEN = true;
-        friction_cnt ++;
-        if( friction_cnt > 2000)
+        if(judge_sensor.info->GameStatus.game_progress == 4) //比赛开始后再开摩擦轮
         {
+            /*............................................................*/
+            /*调试用，比赛时取消上下代码的注释*/
             sys.fire_state.FRICTION_OPEN = true;
-            Fire_process.Friction_ready = true;
-        }//摩擦轮解锁4s后再解锁拨盘
-//        }
-//        else
-//        {
-//            sys.fire_state.FRICTION_OPEN = false;
-//            sys.fire_state.FIRE_OPEN = false;//不在比赛流程时自动关摩擦轮和拨盘
-//            friction_cnt = 0;
-//            Fire_process.Friction_ready = false;
-//        }
+            friction_cnt ++;
+            if( friction_cnt > 2000)
+            {
+                sys.fire_state.FRICTION_OPEN = true;
+                Fire_process.Friction_ready = true;
+            }//摩擦轮解锁4s后再解锁拨盘
+            /*............................................................*/
+        }
+        else
+        {
+            sys.fire_state.FRICTION_OPEN = false;
+            sys.fire_state.FIRE_OPEN = false;//不在比赛流程时自动关摩擦轮和拨盘
+            friction_cnt = 0;
+            Fire_process.Friction_ready = false;
+        }
+
     }
     if(sys.remote_mode == RC)
     {
@@ -156,9 +161,9 @@ static void  Dial_Remote_Continue()
     static int32_t reverse_cnt=0;
     if( sys.fire_state.FIRE_OPEN == true && (Fire_process.Stuck_flag == false) )
     {
-        Fire_process.Speed_target = SHOOT_FREQ_ONE;
+//        Fire_process.Speed_target = SHOOT_FREQ_ONE;
 //        Fire_process.Speed_target = SHOOT_FREQ_LOW;
-//        Fire_process.Speed_target = SHOOT_FREQ_MID;
+        Fire_process.Speed_target = SHOOT_FREQ_MID;
 //		Fire_process.Speed_target = SHOOT_FREQ_HIGH;
     }
     if(sys.fire_state.FIRE_OPEN == false)
@@ -197,18 +202,12 @@ static void  Dial_Remote_Continue()
 */
 bool Fire_Key_info()
 {
-    static	bool	result = false;
-    static uint8_t	key_now	, key_pre;
-    key_now	=	judge_sensor.info->command.commd_keyboard;
+    static	bool result = false;
+    if(judge_sensor.info->AerialData.cmd &stop_fire	)
+        result	= true;
+    else
+        result	= false;
 
-    if(	(key_now	!=	key_pre)&&(key_now	==	KEYBOARD_STOP_FIRE)	)
-    {
-        if(result == false)
-            result	= true;
-        else
-            result	= false;
-    }
-    key_pre	= key_now;
     return	result;
 }
 
@@ -406,8 +405,7 @@ static void Fire_Judge2_1()
                     &&( (sys.predict_state.PREDICT_OPEN) || (Vision_process.gyro_anti) )
                     &&( vision_sensor.work_state == DEV_ONLINE)
                     &&( Chassis_process.init_flag)
-                    &&( Fire_process.Friction_ready)
-                    &&( Fire_Key_info() == false ) )
+                    &&( Fire_process.Friction_ready) )
             {
                 sys.fire_state.FIRE_OPEN=true;
                 Fire_cnt=0;
@@ -415,7 +413,7 @@ static void Fire_Judge2_1()
             else
             {
                 Fire_cnt++;
-                if(Fire_cnt>50)
+                if(Fire_cnt>30) //50
                 {
                     sys.fire_state.FIRE_OPEN=false;
                     Fire_cnt = 0;
@@ -432,22 +430,27 @@ void Dial_Auto()
 
     if( sys.fire_state.FIRE_OPEN == true && (Fire_process.Stuck_flag == false) )
     {
-        if( abs(Vision_process.predict_angle)<10 )
+        if( abs(Vision_process.predict_angle)<5 )
         {
-            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
-//            Fire_process.Speed_target = SHOOT_FREQ_VERYHIGH;
-//            Fire_process.Speed_target = SHOOT_FREQ_HIGH; //比较静止的时候高射频
-//			  Fire_process.Speed_target = SHOOT_FREQ_ONE;
+//            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
+//            Fire_process.Speed_target = SHOOT_FREQ_VERYHIGH;`
+            Fire_process.Speed_target = SHOOT_FREQ_HIGH; //比较静止的时候高射频
+//            Fire_process.Speed_target = SHOOT_FREQ_ONE;
 //            Fire_process.Speed_target = SHOOT_FREQ_MID;
+        }
+        else  if(Vision_process.data_kal.DistanceGet_KF <=5.f)
+        {
+//            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
+            Fire_process.Speed_target = SHOOT_FREQ_HIGH;
+//            Fire_process.Speed_target = SHOOT_FREQ_TEN;
+//            Fire_process.Speed_target = SHOOT_FREQ_MID;
+//            Fire_process.Speed_target = SHOOT_FREQ_TWELVE;
+//            Fire_process.Speed_target = SHOOT_FREQ_ONE;
         }
         else
         {
-//            Fire_process.Speed_target = SHOOT_FREQ_VERYHIGH;
-//            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
-//			Fire_process.Speed_target = SHOOT_FREQ_ONE;
-            Fire_process.Speed_target = SHOOT_FREQ_HIGH;
-//            Fire_process.Speed_target = SHOOT_FREQ_MID;
-//			  Fire_process.Speed_target = SHOOT_FREQ_TWELVE;
+//            Fire_process.Speed_target = SHOOT_FREQ_ONE;
+            Fire_process.Speed_target = SHOOT_FREQ_MID;
         }
 
         if(judge_sensor.info->PowerHeatData.shooter_id1_17mm_cooling_heat > 280)

@@ -224,22 +224,22 @@ typedef __packed struct
     uint32_t rfid_status;
 } ext_rfid_status_t;
 
-/* ID: 0x0200  Byte:  12 	雷达站交互 */
+/* ID: 0x301  Byte:  12 	云台手交互 */
 typedef __packed struct
 {
     uint16_t cmd_id;
     uint16_t send_id;
     uint16_t receive_id;
-    float 	pitch_angle;	// pitch偏差角度/像素点	单位：角度/像素点
-    float 	yaw_angle;		// yaw偏差角度/像素点	单位：角度/像素点
-    float 	distance;			// 距离				单位：mm
-    uint8_t    identify_target;
-    uint8_t    BBB;
-    uint8_t    CCC;
-    uint8_t    DDD;
-    uint8_t    EEE;
-    uint8_t    FFF;
-} ext_radar_data_t;
+	
+	enum cmd_t{
+		stop_fire = 0x1,
+		back_scan = 0x2,
+		escape = 0x4,
+		check_road = 0x8,
+		control_aerial = 0x10,
+	}cmd;
+	int8_t control_dir; //-1和1
+} ext_aerial_data_t;
 
 /* ID: 0x0303  Byte:  15 	 */
 typedef __packed struct
@@ -264,6 +264,7 @@ typedef struct
     bool	dart_data_update;	// 飞镖数据更新
     bool	supply_data_update;	// 补给站数据更新
 	bool    command_data_update;//小地图数据更新
+	bool	communication_data_update;//云台手数据更新
     std_frame_header_t				FrameHeader;				// 帧头信息
     ext_game_status_t 				GameStatus;					// 0x0001
     ext_game_result_t 				GameResult;					// 0x0002
@@ -277,8 +278,6 @@ typedef struct
     ext_referee_warning_t			RefereeWarning;				// 0x0104
     ext_dart_remaining_time_t		DartRemainingTime;			// 0x0105
 
-    ext_radar_data_t                RadarData;                  //0x200
-
     ext_game_robot_status_t			GameRobotStatus;			// 0x0201
     ext_power_heat_data_t			PowerHeatData;				// 0x0202
     ext_game_robot_pos_t			GameRobotPos;				// 0x0203
@@ -288,7 +287,8 @@ typedef struct
     ext_shoot_data_t				ShootData;					// 0x0207
     ext_bullet_remaining_t			BulletRemaining;			// 0x0208
     ext_rfid_status_t				RfidStatus;					// 0x0209
-
+	
+    ext_aerial_data_t                AerialData;                  //0x301	
 
     ext_robot_command_t             command;
     int16_t		offline_cnt;

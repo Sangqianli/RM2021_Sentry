@@ -24,12 +24,13 @@ int16_t StopPwm[2] = {0,0};
 int16_t NormalData_0x200[4]= {0,0,0,0};
 int16_t NormalData_0x2FF[4]= {0,0,0,0};
 int16_t NormalData_0x1FF[4]= {0,0,0,0};
+int16_t NormalData_Can1_0x1FF[4]= {0,0,0,0};
 int16_t NormalPwm[2] = {0,0};
 /* Private functions ---------------------------------------------------------*/
 int16_t Leader_Data = 0;
 static void Control_Leader()
 {
-    if(sys.auto_mode == AUTO_MODE_ATTACK)
+    if( (sys.auto_mode == AUTO_MODE_ATTACK) && (Vision_process.data_kal.DistanceGet_KF <= 4.f) )
     {
         Leader_Data = RP_SET_BIT( Leader_Data,1);
     } else
@@ -49,8 +50,10 @@ static void Control_Leader()
 }
 static void Control_Stop()
 {
+//    CAN2_SendDataBuff(0x1ff,StopData_0x1FF);
+//    CAN1_SendDataBuff(0x1ff,StopData_0x1FF);	
     CAN2_SendDataBuff(0x1ff,StopData_0x1FF);
-    CAN1_SendDataBuff(0x1ff,StopData_0x1FF);	
+    CAN1_SendDataBuff(0x1ff,StopData_0x1FF);		
     FRICTION_PwmOut(0, 0);
     LED_RED_ON();
     LED_GREEN_OFF();
@@ -62,7 +65,7 @@ static void Control_Stop()
 static void Control_Normal()
 {
     CAN2_SendDataBuff(0x1ff,NormalData_0x1FF);
-    CAN1_SendDataBuff(0x1ff,NormalData_0x1FF);
+    CAN1_SendDataBuff(0x1ff,NormalData_Can1_0x1FF);
     FRICTION_PwmOut(NormalPwm[0], NormalPwm[1]);
     LED_RED_OFF();
     LED_GREEN_ON();

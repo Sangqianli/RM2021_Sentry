@@ -12,7 +12,7 @@
 #include "cmsis_os.h"
 
 /* Private macro -------------------------------------------------------------*/
-#define SCOUT_PITCH_SPEED  6
+#define SCOUT_PITCH_SPEED  3    /*6*/
 #define SCOUT_YAW_SPEED    3	/*侦察速度4,1:1*/
 #define SCOUT_YAW_TRUN_TIMES 4U //前后侦察切换次数（往返）
 #define SCOUT_FRONT   1U   //修改前后侦察时用到，作用于修改往返次数，跟上面切换次数有关
@@ -21,13 +21,13 @@
 #define SCOUT_YAW_RIGHT_ANGLE  -1600        //  +-1600
 #define SCOUT_YAW_LEFT_ANGLE   1600 	/*侦察yaw轴角度左右边界*/
 
-#define SCOUT_YAW_RIGHT_FRONT_ANGLE   -1600        //  +-1600
-#define SCOUT_YAW_LEFT_FRONT_ANGLE    1600 	/*侦察yaw轴角度左右边界*/
+#define SCOUT_YAW_RIGHT_FRONT_ANGLE   -1200        //  +-1600
+#define SCOUT_YAW_LEFT_FRONT_ANGLE    1200 	/*侦察yaw轴角度左右边界*/
 #define SCOUT_YAW_RIGHT_BACK_ANGLE   -5800
 #define SCOUT_YAW_LEFT_BACK_ANGLE    -2800
 
 
-#define SCOUT_PITCH_UP_ANGLE     500
+#define SCOUT_PITCH_UP_ANGLE     500   //500
 #define SCOUT_PITCH_DOWN_ANGLE  -650	/*侦察pitch轴角度上下边界*/
 
 #define ATTACK_RAMP              30    //切换到打击模式下的斜坡参数30
@@ -95,7 +95,7 @@ static void Gimbal_RCdata()
 }
 
 static void Gimbal_Measure_Data()
-{
+{ 
     static float gg;
     static float roll_cos,roll_sin;
     gg= (imu_sensor.info->roll*3.1415f)/180.0f;
@@ -106,10 +106,19 @@ static void Gimbal_Measure_Data()
     /*..........................................*/
     Gimbal_process.YAW_PPM.measure = motor[GIMBAL_YAW].info->angle_sum;
     Gimbal_process.PITCH_PPM.measure = -motor[GIMBAL_PITCH].info->angle_sum;
+	
+/*...........陀螺仪速度*/	
     Gimbal_process.YAW_PVM.measure = Gimbal_process.RealYaw_speed;
-
-
     Gimbal_process.PITCH_PVM.measure = -imu_sensor.info->rate_pitch;
+/*......................*/
+	
+/*...........电机速度*/
+//    Gimbal_process.YAW_PVM.measure = motor[GIMBAL_YAW].info->speed;
+//    Gimbal_process.PITCH_PVM.measure = -motor[GIMBAL_PITCH].info->speed;		
+/*......................*/
+
+	
+	
 //    Gimbal_process.PITCH_PVM.measure = KalmanFilter(&Pitch_PPM_p,Gimbal_process.PITCH_PVM.measure);
 }
 
@@ -120,10 +129,8 @@ static void Gimbal_control()
     pid_calculate(&Gimbal_process.YAW_PPM);
     pid_calculate(&Gimbal_process.PITCH_PPM);
 
-    Gimbal_process.PITCH_PVM.target = KalmanFilter(&Pitch_PPM_p,Gimbal_process.PITCH_PPM.out);
-
     Gimbal_process.YAW_PVM.target = Gimbal_process.YAW_PPM.out;
-//    Gimbal_process.PITCH_PVM.target = Gimbal_process.PITCH_PPM.out;
+    Gimbal_process.PITCH_PVM.target = Gimbal_process.PITCH_PPM.out;
     pid_calculate(&Gimbal_process.YAW_PVM);
     pid_calculate(&Gimbal_process.PITCH_PVM);
 
@@ -135,10 +142,10 @@ static void Gimbal2_control()
 {
     Gimbal_process.YAW_PPM.target = Gimbal_process.Yaw_taget;
     Gimbal_process.PITCH_PPM.target = Gimbal_process.Pitch_taget;
-    pid_calculate(&Gimbal_process.YAW_PPM);
+    pid_calculate(&Gimbal_process.YAW_PPM)                                                                                                                                                                                              ;
     pid_calculate(&Gimbal_process.PITCH_PPM);
 
-    Gimbal_process.YAW_PVM.target = Gimbal_process.YAW_PPM.out;
+    Gimbal_process.YAW_PVM.target = Gimbal_process. YAW_PPM.out;
     Gimbal_process.PITCH_PVM.target = Gimbal_process.PITCH_PPM.out;
 
     pid_calculate(&Gimbal_process.PITCH_PVM);
@@ -165,16 +172,14 @@ static bool  Hurt_back()
     static bool result = false;
     if( (judge_sensor.info->hurt_data_update)&&( (judge_sensor.info->RobotHurt.armor_id == 1)&&( judge_sensor.info->RobotHurt.hurt_type == 0) ) )//伤害数据更新
     {
-        {
-            judge_sensor.info->hurt_data_update = false;
-            safe_cnt = 0;
-            result = true;
-        }
+//            judge_sensor.info->hurt_data_update = false;
+        safe_cnt = 0;
+        result = true;
     }
     else
     {
         safe_cnt++;
-        if (safe_cnt>6000)//12s
+        if (safe_cnt>3000)//6s
         {
             safe_cnt = 0;
             result = false;
@@ -193,17 +198,10 @@ static bool  Hurt_back()
 static bool Scan_Key_info()
 {
     static	bool	result = false;
-    static uint8_t	key_now	, key_pre;
-    key_now	=	judge_sensor.info->command.commd_keyboard;
-
-    if(	(key_now	!=	key_pre)&&(key_now	==	KEYBOARD_BACK_SCAN)	)
-    {
-        if(result == false)
-            result	= true;
-        else
-            result	= false;
-    }
-    key_pre	= key_now;
+    if(judge_sensor.info->AerialData.cmd & back_scan)
+        result	= true;
+    else
+        result	= false;
     return	result;
 }
 
@@ -224,7 +222,7 @@ static void  Get_scout_direction()
 //        Gimbal_process.Scout_direction = 1;
 //    }//向前侦察
 
-    if( Hurt_back() || Scan_Key_info() )
+    if( Hurt_back()|| Scan_Key_info()  )//
     {
         Gimbal_process.Scout_direction = -1;
     }//向后巡航
@@ -430,7 +428,7 @@ static  void Scout_2_2()
 
     /*		↑以上是yaw轴的侦察处理↑			*/
     if(pitch_dir == 0)//向下侦察
-    {
+    { 
         Gimbal_process.Pitch_taget -= SCOUT_PITCH_SPEED;
         if(Gimbal_process.PITCH_PPM.target <= (SCOUT_PITCH_DOWN_ANGLE) )
         {
@@ -652,7 +650,7 @@ void Gimbal_Init()
     KalmanCreate(&Pitch_PPM_p,Pitch_PPM_Q,Pitch_PPM_R);
 
     Gimbal_process.YAW_PPM.target=0;
-    Gimbal_process.YAW_PPM.kp=10;//20，10
+    Gimbal_process.YAW_PPM.kp=10;//10
     Gimbal_process.YAW_PPM.ki=0;
     Gimbal_process.YAW_PPM.kd=0;
     Gimbal_process.YAW_PPM.integral_max=8000;
@@ -660,8 +658,8 @@ void Gimbal_Init()
     Gimbal_process.YAW_PPM.out=0;//yaw位置环
 
     Gimbal_process.YAW_PVM.target=0;
-    Gimbal_process.YAW_PVM.kp=25;//16，25
-    Gimbal_process.YAW_PVM.ki=0.4;//0.3，0.4
+    Gimbal_process.YAW_PVM.kp=16;//25
+    Gimbal_process.YAW_PVM.ki=0.2;//0.4
     Gimbal_process.YAW_PVM.kd=0;
     Gimbal_process.YAW_PVM.integral_max=20000;
     Gimbal_process.YAW_PVM.out_max=28000;
@@ -669,7 +667,7 @@ void Gimbal_Init()
 
 
     Gimbal_process.PITCH_PPM.target=0;
-    Gimbal_process.PITCH_PPM.kp=8;//15
+    Gimbal_process.PITCH_PPM.kp=10;//10
     Gimbal_process.PITCH_PPM.ki=0;
     Gimbal_process.PITCH_PPM.kd=0;
     Gimbal_process.PITCH_PPM.integral_max=8000;
@@ -677,15 +675,15 @@ void Gimbal_Init()
     Gimbal_process.PITCH_PPM.out=0;//pitch位置环
 
     Gimbal_process.PITCH_PVM.target=0;
-    Gimbal_process.PITCH_PVM.kp=12;//12  18
-    Gimbal_process.PITCH_PVM.ki=0.3;//0.3 0.3
+    Gimbal_process.PITCH_PVM.kp=12;//12  
+    Gimbal_process.PITCH_PVM.ki=0.1;//0.3
     Gimbal_process.PITCH_PVM.kd=0;
     Gimbal_process.PITCH_PVM.integral_max=26000;
     Gimbal_process.PITCH_PVM.out_max=28000;
     Gimbal_process.PITCH_PVM.out=0;//pitch速度环
 
-    Gimbal_process.PITCH2_PVM.kp=12;//12  18
-    Gimbal_process.PITCH2_PVM.ki=0.6;//0.3 0.3
+    Gimbal_process.PITCH2_PVM.kp=12;//12  
+    Gimbal_process.PITCH2_PVM.ki=0.6;//0.6
     Gimbal_process.PITCH2_PVM.kd=0;
     Gimbal_process.PITCH2_PVM.integral_max=26000;
     Gimbal_process.PITCH2_PVM.out_max=28000;
@@ -718,8 +716,8 @@ void StartGimbalTask(void const * argument)
             {
                 Gimbal_reset();
             }
-//            Gimbal_control();
-            Gimbal2_control();
+            Gimbal_control();
+//            Gimbal2_control();
         }
         osDelay(2);
     }

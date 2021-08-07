@@ -12,17 +12,19 @@
 #include "cmsis_os.h"
 
 /* Private macro -------------------------------------------------------------*/
-#define FIRING_RATE_LOW   345
-#define FIRING_RATE_MID   500
-#define FIRING_RATE_HIGH  450      /*27m射速630*/
+#define FIRING_RATE_LOW   2000
+#define FIRING_RATE_MID   4600
+#define FIRING_RATE_HIGH  6600      /*27m射速6600*/
 
-#define SHOOT_FREQ_ONE    270
-#define SHOOT_FREQ_LOW    1080   /*4射频*/
-#define SHOOT_FREQ_MID    2160   /*8射频*/
-#define SHOOT_FREQ_TWELVE 3240   /*12射频*/
-#define SHOOT_FREQ_HIGH   4320   /*16射频*/
-#define SHOOT_FREQ_HEATLIMIT   6480  /*24射频*/
-#define SHOOT_FREQ_VERYHIGH   8640   /*32射频*/
+#define SHOOT_FREQ_ONE    -270
+#define SHOOT_FREQ_LOW    -1080   /*4射频*/
+#define SHOOT_FREQ_SIX    -1620   /*6射频*/
+#define SHOOT_FREQ_MID    -2160   /*8射频*/
+#define SHOOT_FREQ_TEN    -2700   /*10射频*/
+#define SHOOT_FREQ_TWELVE -3240   /*12射频*/
+#define SHOOT_FREQ_HIGH   -4320   /*16射频*/
+#define SHOOT_FREQ_HEATLIMIT   -6480  /*24射频*/
+#define SHOOT_FREQ_VERYHIGH   -8640   /*32射频*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -31,29 +33,17 @@ Fire_t Fire_process = {
     .Stuck_flag = false,
     .Speed_target = SHOOT_FREQ_LOW
 };
+Friction_t Friction_process = {
+    .Stuck_flag = false,
+    .Speed_left =  -FIRING_RATE_HIGH,	
+	.Speed_right = FIRING_RATE_HIGH	
+};
 /* Private functions ---------------------------------------------------------*/
 static void Friction_Control()
 {
     static int32_t friction_cnt = 0;
     if(sys.remote_mode == AUTO)
     {
-//        if(judge_sensor.info->GameStatus.game_progress == 4) //比赛开始后再开摩擦轮
-//        {
-//            sys.fire_state.FRICTION_OPEN = true;
-//            friction_cnt ++;
-//            if( friction_cnt > 1000)
-//            {
-//                sys.fire_state.FRICTION_OPEN = true;
-//                Fire_process.Friction_ready = true;
-//            }//摩擦轮解锁2s后再解锁拨盘
-//        }
-//        else
-//        {
-//            sys.fire_state.FRICTION_OPEN = false;
-//            sys.fire_state.FIRE_OPEN = false;//不在比赛流程时自动关摩擦轮和拨盘
-//            friction_cnt = 0;
-//            Fire_process.Friction_ready = false;
-//        }
         if(master_sensor.info->modes.friction_now == 1)
         {
             sys.fire_state.FRICTION_OPEN = true;
@@ -62,7 +52,7 @@ static void Friction_Control()
             {
                 sys.fire_state.FRICTION_OPEN = true;
                 Fire_process.Friction_ready = true;
-            }//摩擦轮解锁4           s后再解锁拨盘
+            }//摩擦轮解锁4s后再解锁拨盘
         }
         else
         {
@@ -80,34 +70,25 @@ static void Friction_Control()
 
     if(sys.fire_state.FRICTION_OPEN)
     {
-        Fire_process.Friction_target += 5;
-        if(Fire_process.Friction_target >= FIRING_RATE_HIGH)
-            Fire_process.Friction_target = FIRING_RATE_HIGH;
+		Friction_process.Speed_left = FIRING_RATE_HIGH;
+		Friction_process.Speed_right = - FIRING_RATE_HIGH;		
     } else
     {
-        Fire_process.Friction_target -= 5;
-        if(Fire_process.Friction_target <= 0)
-            Fire_process.Friction_target = 0;
+		Friction_process.Speed_left = 0;
+		Friction_process.Speed_right = 0;			
     }
-//    if(judge_sensor.info->GameRobotStatus.mains_power_shooter_output == 1)
-//    {
-//        if(judge_sensor.info->ShootData.bullet_speed >29.9f)
-//        {
-//            NormalPwm[0] = Fire_process.Friction_target - 50;
-//            NormalPwm[1] = Fire_process.Friction_target - 50;
-//        }
-//        else
-//        {
-    NormalPwm[0] = Fire_process.Friction_target;
-    NormalPwm[1] = Fire_process.Friction_target;
-//        }
-//    } else
-//    {
-//        sys.fire_state.FRICTION_OPEN = false;//关闭摩擦轮输出，让重新上电时不会给大
-//        sys.fire_state.FIRE_OPEN = false; //关闭拨盘输出
-////        NormalPwm[0] = 0;
-////        NormalPwm[1] = 0;
-//    }
+	Friction_process.PVM_LEFT.target = Friction_process.Speed_left;
+	Friction_process.PVM_RIGHT.target = Friction_process.Speed_right;	
+	
+	Friction_process.PVM_LEFT.measure = motor[FIRE_LEFT].info->speed;
+	Friction_process.PVM_RIGHT.measure = motor[FIRE_RIGHT].info->speed;	
+	
+	pid_calculate(&Friction_process.PVM_LEFT);
+	pid_calculate(&Friction_process.PVM_RIGHT);
+	
+	NormalData_Can1_0x1FF[1] = (int16_t)(Friction_process.PVM_LEFT.out);
+	NormalData_Can1_0x1FF[2] = (int16_t)(Friction_process.PVM_RIGHT.out);	
+
 }
 
 
@@ -131,7 +112,7 @@ void Dial_Remote_An()
     }
     if(Fire_process.Stuck_flag)
     {
-        Fire_process.Speed_target = -400;
+        Fire_process.Speed_target = 400;
         reverse_cnt++;
         Fire_process.PVM.target = Fire_process.Speed_target;
         Fire_process.PVM.measure = motor[DIAL].info->speed;
@@ -383,8 +364,7 @@ static void Fire_Judge2_1()
                     &&( (abs(Vision_process.data_kal.PitchGet_KF)<=10) || (Vision_process.gyro_anti) )
                     && ((sys.predict_state.PREDICT_OPEN) || (Vision_process.gyro_anti) )
                     && (vision_sensor.work_state == DEV_ONLINE)
-                    && (Fire_process.Friction_ready)	
-					&&	(master_sensor.info->modes.fire_stop == 0) )
+                    && (Fire_process.Friction_ready)  )
             {
                 sys.fire_state.FIRE_OPEN=true;
                 Fire_cnt=0;
@@ -392,7 +372,7 @@ static void Fire_Judge2_1()
             else
             {
                 Fire_cnt++;
-                if(Fire_cnt>40)
+                if(Fire_cnt>30) //40
                 {
                     sys.fire_state.FIRE_OPEN=false;
                     Fire_cnt = 0;
@@ -409,22 +389,32 @@ void Dial_Auto()
 
     if( sys.fire_state.FIRE_OPEN == true && (Fire_process.Stuck_flag == false) )
     {
-        if( (abs(Vision_process.predict_angle)<10)||(judge_sensor.info->GameRobotStatus.remain_HP <= HP_Danger) )
-        {
+        if( abs(Vision_process.predict_angle)<5 ) 
+        {         
 //            Fire_process.Speed_target = SHOOT_FREQ_HIGH; //比较静止的时候高射频
-//            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
+            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
 //            Fire_process.Speed_target = SHOOT_FREQ_MID;
-			 Fire_process.Speed_target = SHOOT_FREQ_ONE;
+//			 Fire_process.Speed_target = SHOOT_FREQ_ONE;
         }
-
-        else
+		else  if(Vision_process.data_kal.DistanceGet_KF <=5.f)
+		{
+            Fire_process.Speed_target = SHOOT_FREQ_HIGH;		
+		}
+        else  if(Vision_process.data_kal.DistanceGet_KF <=7.f)
         {
 //            Fire_process.Speed_target = SHOOT_FREQ_HEATLIMIT;
 //            Fire_process.Speed_target = SHOOT_FREQ_HIGH;
+//            Fire_process.Speed_target = SHOOT_FREQ_TEN;	
 //            Fire_process.Speed_target = SHOOT_FREQ_MID;
-//			Fire_process.Speed_target = SHOOT_FREQ_TWELVE;
-			 Fire_process.Speed_target = SHOOT_FREQ_ONE;
-        }
+			Fire_process.Speed_target = SHOOT_FREQ_TWELVE;
+//			 Fire_process.Speed_target = SHOOT_FREQ_ONE;
+        }	
+		else
+		{
+//            Fire_process.Speed_target = SHOOT_FREQ_SIX;			
+            Fire_process.Speed_target = SHOOT_FREQ_LOW;	
+//			Fire_process.Speed_target = SHOOT_FREQ_ONE;			
+		}
 
         if(master_sensor.info->cooling_heat > 280)
         {
@@ -452,7 +442,7 @@ void Dial_Auto()
     }
     if(Fire_process.Stuck_flag)
     {
-        Fire_process.Speed_target = -400;
+        Fire_process.Speed_target = 400;
         reverse_cnt++;
         if(reverse_cnt>250)
         {
@@ -470,7 +460,7 @@ static void Dail_text()
     pid_calculate(&Fire_process.PVM);
     if( (sys.fire_state.FIRE_OPEN) && (sys.fire_state.FRICTION_OPEN) )//原来有 && (judge_sensor.info->GameRobotStatus.mains_power_shooter_output == 1)
     {
-        NormalData_0x1FF[2] = (int16_t)Fire_process.PVM.out;
+        NormalData_Can1_0x1FF[0] = (int16_t)Fire_process.PVM.out;
 //		NormalData_0x200[2] = 0;
     }
     else
@@ -478,7 +468,7 @@ static void Dail_text()
         sys.fire_state.FIRE_OPEN = false;
         Fire_process.Speed_target = 0;
         Fire_process.PVM.target = 0;
-        NormalData_0x1FF[2] = (int16_t)Fire_process.PVM.out;
+        NormalData_Can1_0x1FF[0] = (int16_t)Fire_process.PVM.out;
 //        NormalData_0x1FF[2] = 0;
     }
 }
@@ -500,6 +490,22 @@ void Fire_Init()
     Fire_process.PVM.integral_max=6000;
     Fire_process.PVM.out_max=8000;
     Fire_process.PVM.out=0;
+	
+    Friction_process.PVM_LEFT.target=0;
+    Friction_process.PVM_LEFT.kp=10;//
+    Friction_process.PVM_LEFT.ki=0;//
+    Friction_process.PVM_LEFT.kd=1;
+    Friction_process.PVM_LEFT.integral_max=8000;
+    Friction_process.PVM_LEFT.out_max=12000; 
+    Friction_process.PVM_LEFT.out=0;
+
+    Friction_process.PVM_RIGHT.target=0;
+    Friction_process.PVM_RIGHT.kp=10;//
+    Friction_process.PVM_RIGHT.ki=0;//
+    Friction_process.PVM_RIGHT.kd=1;
+    Friction_process.PVM_RIGHT.integral_max=8000;
+    Friction_process.PVM_RIGHT.out_max=12000;
+    Friction_process.PVM_RIGHT.out=0;
 }
 void StartFireTask(void const * argument)
 {
