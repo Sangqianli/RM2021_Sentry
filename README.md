@@ -1,38 +1,51 @@
-# 新版哨兵
+# RM2021哨兵
 
-#### 介绍
-2021年新版哨兵；包含上下云台；使用标准库，重写到HAL库。
-leader是上云台代码，master是下云台代码。
+## 整体介绍
+2021年双云台哨兵；来自**深圳大学RobotPilots战队**；
+包含上下云台：其中上云台代码文件名为leader，下云台代码文件名为master，doc内有相应技术文档；
 
-#### 软件架构
-软件架构说明
+## 软件架构
+### 软件架构说明
 
+![代码整体框架](G:\RobotPiolits\工作记录\技术文档\代码整体框架.png)
 
-#### 安装教程
+### 程序逻辑框图
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+![程序逻辑框图](G:\RobotPiolits\工作记录\技术文档\程序逻辑框图.png)
 
 
-#### 特技
+## 硬件布线框图
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+![硬件系统框图](G:\RobotPiolits\工作记录\技术文档\硬件系统框图.png)
+
+## 主要功能介绍
+---
+### 双云台控制系统
+		详见doc内技术文档相关内容，利用这套系统，可以做到只用一个遥控器就完整控制双云台，实现良好的调试控制效果，也方便比赛检录。此外，在通信链路或某个主控程序失灵的情况下，也能保证另一个云台正常工作，不至于完全瘫痪。
+---
+### 自瞄开火系统
+		逻辑框图如下，具体实现请看doc内技术文档相关内容
+![自瞄开火程序逻辑](G:\RobotPiolits\工作记录\技术文档\自瞄开火程序逻辑.png)
+---
+### 双环底盘跑轨
+		硬件上采用1000线增量编码器和微动开关，软件上使用双环PID进行底盘跑轨控制，极大提高底盘动态性能。全轨往返时间可稳定在4.2到4.5秒。详见doc内技术文档相关内容。
+---
+## 开发调试工具
+---
+### 软件环境
+**Windows10**
+### 硬件环境
+**STM32F407VET6**
+### 编译方式
+**C**
+### 具体工具
+1. MDK5 + STM32CubeMX开发
+2. Zigbee无线调试模块和上位机
+3. 自制J-Link和J-Scope软件
+4. EventRecoder组件 
+
+---
+## 未来优化方向
+---
+	 在哨兵上进行视控一体化，添加更多维度和方向的传感器，获取精准信息，抗干扰强，提高自动跑轨和打击性能 
+
