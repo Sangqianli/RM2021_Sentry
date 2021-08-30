@@ -16,7 +16,7 @@
 
 ## 硬件布线框图
 
-![硬件系统框图](G:\RobotPiolits\工作记录\技术文档\硬件系统框图.png)
+![硬件系统框图](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E7%A1%AC%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A1%86%E5%9B%BE.png)
 
 ## 主要功能介绍
 ---
