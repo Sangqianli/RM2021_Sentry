@@ -11,7 +11,7 @@
 
 ### 程序逻辑框图
 
-![程序逻辑框图](G:\RobotPiolits\工作记录\技术文档\程序逻辑框图.png)
+![程序逻辑框图](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E7%A8%8B%E5%BA%8F%E9%80%BB%E8%BE%91%E6%A1%86%E5%9B%BE.png)
 
 
 ## 硬件布线框图
