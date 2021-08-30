@@ -7,7 +7,7 @@
 ## 软件架构
 ### 软件架构说明
 
-![代码整体框架](G:\RobotPiolits\工作记录\技术文档\代码整体框架.png)
+![代码整体框架](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E4%BB%A3%E7%A0%81%E6%95%B4%E4%BD%93%E6%A1%86%E6%9E%B6.png)
 
 ### 程序逻辑框图
 
