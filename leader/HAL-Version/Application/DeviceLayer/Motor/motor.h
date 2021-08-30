@@ -33,12 +33,12 @@ typedef struct motor_struct {
 
 typedef __packed struct
 {
-    uint8_t online : 1;
-	uint8_t mode : 2;
-	uint8_t attack_colour :2;//红2蓝1没有则默认0
-	uint8_t friction_now :1;
-	uint8_t dial_now : 1;
-	uint8_t fire_stop :1;
+    uint8_t online : 1;//遥控连接位
+	uint8_t mode : 2;//控制模式位
+	uint8_t attack_colour :2;//识别颜色位
+	uint8_t friction_now :1;//摩擦轮开启位
+	uint8_t dial_now : 1;//拨盘开启位
+	uint8_t fire_stop :1;//强制停止位
 }master_mode_t;
 typedef struct master_info_struct
 {

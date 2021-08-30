@@ -51,7 +51,7 @@ static void Control_Leader()
 
 
         if(judge_sensor.info->GameRobotStatus.robot_id == 7)//红色id
-        {
+        { 
             Mode_Data =RP_SET_BIT(Mode_Data,4);
             Mode_Data =RP_CLEAR_BIT(Mode_Data,5);//识别蓝色，1，01
         }
@@ -132,6 +132,7 @@ static void Control_Normal()
 
     CAN1_SendDataBuff(0x2ff,NormalData_0x2FF);
     CAN1_SendDataBuff(0x200,NormalData_0x200);
+	
     FRICTION_PwmOut(NormalPwm[0], NormalPwm[1]);
     LED_RED_OFF();
     LED_GREEN_ON();

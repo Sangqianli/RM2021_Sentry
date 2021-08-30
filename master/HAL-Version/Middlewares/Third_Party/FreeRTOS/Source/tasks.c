@@ -1986,7 +1986,7 @@ BaseType_t xReturn;
 												pxIdleTaskStackBuffer,
 												pxIdleTaskTCBBuffer ); /*lint !e961 MISRA exception, justified as it is not a redundant explicit cast to all supported compilers. */
 
-		if( xIdleTaskHandle != NULL )
+		if( xIdleTaskHandle != NULL )  
 		{
 			xReturn = pdPASS;
 		}
