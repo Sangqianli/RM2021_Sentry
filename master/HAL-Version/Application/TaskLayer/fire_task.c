@@ -39,8 +39,8 @@ static void Friction_Control()
     static bool speed_over = false;
     if(sys.remote_mode == AUTO)
     {
-        if(judge_sensor.info->GameStatus.game_progress == 4) //比赛开始后再开摩擦轮
-        {
+//        if(judge_sensor.info->GameStatus.game_progress == 4) //比赛开始后再开摩擦轮
+//        {
             /*............................................................*/
             /*调试用，比赛时取消上下代码的注释*/
             sys.fire_state.FRICTION_OPEN = true;
@@ -51,14 +51,14 @@ static void Friction_Control()
                 Fire_process.Friction_ready = true;
             }//摩擦轮解锁4s后再解锁拨盘
             /*............................................................*/
-        }
-        else
-        {
-            sys.fire_state.FRICTION_OPEN = false;
-            sys.fire_state.FIRE_OPEN = false;//不在比赛流程时自动关摩擦轮和拨盘
-            friction_cnt = 0;
-            Fire_process.Friction_ready = false;
-        }
+//        }
+//        else
+//        {
+//            sys.fire_state.FRICTION_OPEN = false;
+//            sys.fire_state.FIRE_OPEN = false;//不在比赛流程时自动关摩擦轮和拨盘
+//            friction_cnt = 0;
+//            Fire_process.Friction_ready = false;
+//        }
 
     }
     if(sys.remote_mode == RC)

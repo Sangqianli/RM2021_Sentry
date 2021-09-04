@@ -936,23 +936,23 @@ static void Outpost_get()
         Chassis_process.Fire = FIRE_ALL;
     } else {
         /***************Ò£¿ØÆ÷²¦ÂÖ¿ØÖÆÄ£ÄâÇ°ÉÚÕ¾£¬Ö÷ÒªÓÃÓÚÑµÁ··½±ã£¬±ÈÈüÊ±È¥µô*********/
-//        if( abs(rc_sensor.info->thumbwheel) >=630 )
-//        {
-//            tum_cnt++;
-//            if(tum_cnt > 100)
-//            {
-//                if(rc_sensor.info->thumbwheel >= 630)
-//                {
-//                    Chassis_process.Fire = FIRE_ALL;
-//                } else if(rc_sensor.info->thumbwheel <= -630)
-//                {
-//                    Chassis_process.Fire = FIRE_RUN;
-//                }
-//                tum_cnt = 0;
-//            }
-//        }
+        if( abs(rc_sensor.info->thumbwheel) >=630 )
+        {
+            tum_cnt++;
+            if(tum_cnt > 100)
+            {
+                if(rc_sensor.info->thumbwheel >= 630)
+                {
+                    Chassis_process.Fire = FIRE_ALL;
+                } else if(rc_sensor.info->thumbwheel <= -630)
+                {
+                    Chassis_process.Fire = FIRE_RUN;
+                }
+                tum_cnt = 0;
+            }
+        }
         /******************************************************/
-        Chassis_process.Fire = FIRE_RUN;//±ÈÈüÊ±»Ö¸´
+//        Chassis_process.Fire = FIRE_RUN;//±ÈÈüÊ±»Ö¸´
     }
 }
 /**
@@ -1397,15 +1397,15 @@ static void AUTO_ALL()
         Aerial_Control();
     } else
     {
-        Chassis_AutoWayGet();
-        if( Chassis_process.Way == WAY_NORMAL )
-            Chassis_AUTO_3_0();	//»ìºÏÅÜ¹ì
-        else if( Chassis_process.Way == WAY_TOUCH )
-            Chassis_AUTO_TOUCH(); //´¿´¥ÅöÅÜ¹ì
-        else if( Chassis_process.Way == WAY_ENCODER )
-            Chassis_AUTO_ENCODER();//´¿±àÂëÆ÷ÅÜ¹ì
+//        Chassis_AutoWayGet();
+//        if( Chassis_process.Way == WAY_NORMAL )
+//            Chassis_AUTO_3_0();	//»ìºÏÅÜ¹ì
+//        else if( Chassis_process.Way == WAY_TOUCH )
+//            Chassis_AUTO_TOUCH(); //´¿´¥ÅöÅÜ¹ì
+//        else if( Chassis_process.Way == WAY_ENCODER )
+//            Chassis_AUTO_ENCODER();//´¿±àÂëÆ÷ÅÜ¹ì
 
-//                Chassis_AUTO();//Ò£¿Ø
+                Chassis_AUTO();//Ò£¿Ø
     }
 }
 /* Exported functions --------------------------------------------------------*/
