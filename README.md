@@ -7,16 +7,16 @@
 ## 软件架构
 ### 软件架构说明
 
-![代码整体框架](G:\RobotPiolits\工作记录\技术文档\代码整体框架.png)
+![代码整体框架](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E4%BB%A3%E7%A0%81%E6%95%B4%E4%BD%93%E6%A1%86%E6%9E%B6.png)
 
 ### 程序逻辑框图
 
-![程序逻辑框图](G:\RobotPiolits\工作记录\技术文档\程序逻辑框图.png)
+![程序逻辑框图](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E7%A8%8B%E5%BA%8F%E9%80%BB%E8%BE%91%E6%A1%86%E5%9B%BE.png)
 
 
 ## 硬件布线框图
 
-![硬件系统框图](G:\RobotPiolits\工作记录\技术文档\硬件系统框图.png)
+![硬件系统框图](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E7%A1%AC%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A1%86%E5%9B%BE.png)
 
 ## 主要功能介绍
 ---
@@ -25,7 +25,7 @@
 ---
 ### 自瞄开火系统
 		逻辑框图如下，具体实现请看doc内技术文档相关内容
-![自瞄开火程序逻辑](G:\RobotPiolits\工作记录\技术文档\自瞄开火程序逻辑.png)
+![自瞄开火程序逻辑](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E8%87%AA%E7%9E%84%E5%BC%80%E7%81%AB%E7%A8%8B%E5%BA%8F%E9%80%BB%E8%BE%91.png)
 ---
 ### 双环底盘跑轨
 		硬件上采用1000线增量编码器和微动开关，软件上使用双环PID进行底盘跑轨控制，极大提高底盘动态性能。全轨往返时间可稳定在4.2到4.5秒。详见doc内技术文档相关内容。
