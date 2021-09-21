@@ -3,7 +3,7 @@
 ## 整体介绍
 2021年双云台哨兵；来自**深圳大学RobotPilots战队**；
 包含上下云台：其中上云台代码文件名为leader，下云台代码文件名为master，doc内有相应技术文档；
-
+![整机图片](https://github.com/Sangqianli/RM2021_Sentry/blob/main/doc/%E6%95%B4%E6%9C%BA%E5%9B%BE%E7%89%87.png)
 ## 软件架构
 ### 软件架构说明
 
